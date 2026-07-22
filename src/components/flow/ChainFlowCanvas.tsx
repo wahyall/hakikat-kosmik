@@ -221,6 +221,40 @@ function FlowInner() {
     });
   }, [filteredEdges, traversalActive, traversalIndex]);
 
+  // Edge korelasi (Task 7) — cross-cutting, TIDAK ikut layout dagre agar
+  // tidak mendistorsi susunan vertikal kausal. Digabung setelah layout.
+  const CORRELATION_STYLE: Record<string, string> = {
+    dependency: "#8b5cf6", // violet
+    "shared-cause": "#0ea5e9", // sky
+    analogy: "#14b8a6", // teal
+    thematic: "#f59e0b", // amber
+  };
+
+  const correlationEdges: Edge[] = useMemo(() => {
+    if (!showCorrelations) return [];
+    const visibleIds = new Set(filteredNodes.map((n) => n.id));
+    return chainCorrelations
+      .filter((c) => visibleIds.has(c.source) && visibleIds.has(c.target))
+      .map((c) => ({
+        id: c.id,
+        source: c.source,
+        target: c.target,
+        label: c.label,
+        type: "smoothstep",
+        animated: false,
+        markerEnd: { type: MarkerType.Arrow, width: 14, height: 14 },
+        style: {
+          stroke: CORRELATION_STYLE[c.kind] ?? "#8b5cf6",
+          strokeWidth: 1.5,
+          strokeDasharray: "5 4",
+          opacity: 0.85,
+        },
+        labelStyle: { fontSize: 9, fill: CORRELATION_STYLE[c.kind] ?? "#8b5cf6" },
+        labelBgStyle: { fill: "var(--background)", opacity: 0.85 },
+        zIndex: 0,
+      }));
+  }, [showCorrelations, filteredNodes]);
+
   // Layout dengan dagre — VERTIKAL (TB)
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
     return getLayoutedElements(rfNodes, rfEdges, {
@@ -236,8 +270,8 @@ function FlowInner() {
   // Update state ketika layout berubah
   useEffect(() => {
     setNodes(layoutedNodes);
-    setEdges(layoutedEdges);
-  }, [layoutedNodes, layoutedEdges, setNodes, setEdges]);
+    setEdges([...layoutedEdges, ...correlationEdges]);
+  }, [layoutedNodes, layoutedEdges, correlationEdges, setNodes, setEdges]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
@@ -369,6 +403,17 @@ function FlowInner() {
         className="!bg-background !border !border-border !shadow-sm !rounded-md"
         // showInteractive={false}
       />
+      {showCorrelations && (
+        <Panel position="top-left" className="!m-2">
+          <div className="rounded-md border bg-background/90 backdrop-blur p-2 text-[9px] space-y-1 shadow-sm">
+            <p className="font-bold uppercase tracking-wide text-muted-foreground">Korelasi</p>
+            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#8b5cf6" }} /> Dependensi</div>
+            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#0ea5e9" }} /> Sebab bersama</div>
+            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#14b8a6" }} /> Analogi</div>
+            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#f59e0b" }} /> Tematik</div>
+          </div>
+        </Panel>
+      )}
       {/* <MiniMap
         pannable
         zoomable
