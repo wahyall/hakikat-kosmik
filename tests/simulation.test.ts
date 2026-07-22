@@ -3,6 +3,7 @@ import { nodeSensitivities, type ConstantId } from "../src/data/fine-tuning-impa
 import { chainNodes } from "../src/data/chain-nodes";
 import { fineTuningConstants } from "../src/data/fine-tuning-constants";
 import { chainCorrelations } from "../src/data/chain-correlations";
+import { simulate, nominalValues } from "../src/lib/flow/simulation";
 
 const VALID_CONSTANTS: ConstantId[] = ["alpha", "G", "Lambda", "me-mp", "Q", "dimensions"];
 
@@ -72,5 +73,83 @@ describe("chainCorrelations data integrity", () => {
   it("has between 10 and 15 correlations", () => {
     expect(chainCorrelations.length).toBeGreaterThanOrEqual(10);
     expect(chainCorrelations.length).toBeLessThanOrEqual(15);
+  });
+});
+
+describe("simulate engine", () => {
+  it("all-nominal → every node survives and anyChange is false", () => {
+    const res = simulate(nominalValues());
+    expect(res.anyChange).toBe(false);
+    for (const [, o] of res.outcomes) expect(o.status).toBe("survives");
+    expect(res.counts.fails).toBe(0);
+    expect(res.counts.altered).toBe(0);
+    expect(res.firstFailure).toBeNull();
+  });
+
+  it("alpha out of range → nucleosynthesis fails directly", () => {
+    const v = nominalValues();
+    v.alpha = 0.02; // > habitableMax 0.009
+    const res = simulate(v);
+    const nucleo = res.outcomes.get("a-nucleosynthesis")!;
+    expect(nucleo.status).toBe("fails");
+    expect(nucleo.dueToConstant).toBe("alpha");
+    expect(nucleo.viaCascade).toBeFalsy();
+    expect(res.anyChange).toBe(true);
+  });
+
+  it("cascade flows old→young: failing nucleosynthesis kills the present", () => {
+    const v = nominalValues();
+    v.G = 6.674e-9; // > habitableMax 6.674e-10
+    const res = simulate(v);
+    // a-now has NO direct sensitivity — it can only fail via cascade
+    const now = res.outcomes.get("a-now")!;
+    expect(now.status).toBe("fails");
+    expect(now.viaCascade).toBe(true);
+    // the direct hit is upstream (older)
+    expect(res.outcomes.get("a-nucleosynthesis")!.viaCascade).toBeFalsy();
+  });
+
+  it("firstFailure is the oldest (smallest timeValue) direct hit", () => {
+    const v = nominalValues();
+    v.alpha = 0.02;
+    const res = simulate(v);
+    expect(res.firstFailure).not.toBeNull();
+    expect(res.firstFailure!.nodeId).toBe("a-nucleosynthesis");
+  });
+
+  it("off-nominal but in-range → sensitive node is altered, not failed", () => {
+    const v = nominalValues();
+    v.alpha = 0.0085; // in [0.006, 0.009] but != nominal 0.00729735
+    const res = simulate(v);
+    expect(res.outcomes.get("a-recombination")!.status).toBe("altered");
+    expect(res.counts.fails).toBe(0);
+  });
+
+  it("analogy/thematic correlations do not propagate failure", () => {
+    const v = nominalValues();
+    v.alpha = 0.02; // kills nucleosynthesis; c-fusion links to it via ANALOGY only
+    const res = simulate(v);
+    // c-fusion has its OWN alpha-critical sensitivity, so it fails directly — assert
+    // that a purely thematic target is unaffected instead:
+    // a-first-cause is linked from d-physics via thematic; nothing should force it to fail
+    expect(res.outcomes.get("a-first-cause")!.status).toBe("survives");
+  });
+
+  it("failedInOrder is sorted by ascending timeValue", () => {
+    const v = nominalValues();
+    v.alpha = 0.02;
+    const res = simulate(v);
+    const times = res.failedInOrder.map(
+      (id) => res.outcomes.get(id) && id
+    );
+    // verify monotonic non-decreasing timeValue
+    const { chainNodes: nodes } = require("../src/data/chain-nodes");
+    const tv = new Map(nodes.map((n: any) => [n.id, n.timeValue]));
+    for (let i = 1; i < res.failedInOrder.length; i++) {
+      expect(tv.get(res.failedInOrder[i])).toBeGreaterThanOrEqual(
+        tv.get(res.failedInOrder[i - 1])
+      );
+    }
+    expect(times.length).toBe(res.failedInOrder.length);
   });
 });
