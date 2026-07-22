@@ -35,6 +35,8 @@ import { CustomNode, type ChainNodeData } from "./CustomNode";
 import { getLayoutedElements, CATEGORY_COLORS } from "@/lib/flow/layout";
 import { useFlowStore } from "@/store/flow-store";
 import { cn } from "@/lib/utils";
+import { simulate } from "@/lib/flow/simulation";
+import { chainCorrelations } from "@/data/chain-correlations";
 
 const nodeTypes = { custom: CustomNode };
 
@@ -81,6 +83,9 @@ function FlowInner() {
   const timelineTimeValue = useFlowStore((s) => s.timelineTimeValue);
   const setSelectedNode = useFlowStore((s) => s.setSelectedNode);
   const setBranch = useFlowStore((s) => s.setBranch);
+  const simValues = useFlowStore((s) => s.simValues);
+  const panelMode = useFlowStore((s) => s.panelMode);
+  const showCorrelations = useFlowStore((s) => s.showCorrelations);
 
   // Traversal state
   const traversalActive = useFlowStore((s) => s.traversalActive);
@@ -125,6 +130,9 @@ function FlowInner() {
     });
   }, [filteredNodes, activeBranch]);
 
+  const simEnabled = panelMode === "finetuning";
+  const sim = useMemo(() => simulate(simValues), [simValues]);
+
   // Hitung dim/active state untuk setiap node
   const decoratedNodes = useMemo(() => {
     return filteredNodes.map((n) => {
@@ -149,6 +157,7 @@ function FlowInner() {
         isHighlighted: timelineMatch || isTraversalActiveNode,
         isSelected: selectedNodeId === n.id,
         isTraversalActive: isTraversalActiveNode,
+        simStatus: simEnabled && sim.anyChange ? sim.outcomes.get(n.id)?.status : undefined,
       };
     });
   }, [
@@ -159,6 +168,8 @@ function FlowInner() {
     selectedNodeId,
     traversalActive,
     traversalNodeId,
+    sim,
+    simEnabled,
   ]);
 
   // Convert ke React Flow node format
@@ -167,7 +178,7 @@ function FlowInner() {
       id: n.id,
       type: "custom",
       position: { x: 0, y: 0 },
-      data: { node: n } as unknown as ChainNodeData,
+      data: { node: n, simStatus: n.simStatus } as unknown as ChainNodeData,
     }));
   }, [decoratedNodes]);
 
