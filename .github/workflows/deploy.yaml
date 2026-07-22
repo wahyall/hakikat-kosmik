@@ -14,11 +14,6 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Build
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
@@ -31,9 +26,7 @@ jobs:
           mkdir -p deploy/.next
           cp -r .next/static deploy/.next/static
           cp -r public deploy/public
-          cp -r prisma deploy/prisma
           cp package.json deploy/package.json
-          cp prisma.config.ts deploy/prisma.config.ts
 
       - name: Setup SSH
         run: |
