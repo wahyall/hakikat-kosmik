@@ -46,5 +46,5 @@ jobs:
       - name: Restart service
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
-            sudo systemctl restart key.ynittiba.com
+            sudo systemctl restart hakikat.ynittiba.com
           '
