@@ -110,7 +110,8 @@ export function simulate(values: Record<ConstantId, number>): SimulationResult {
     prereqs.get(source)!.push(target);
   };
   for (const e of chainEdges) addDep(e.source, e.target);
-  for (const c of chainCorrelations) if (c.propagatesFailure) addDep(c.source, c.target);
+  for (const c of chainCorrelations)
+    if (c.propagatesFailure && c.kind === "dependency") addDep(c.source, c.target);
 
   // Iterasi sampai stabil: node gagal bila salah satu prereq-nya gagal.
   let changed = true;
@@ -132,7 +133,6 @@ export function simulate(values: Record<ConstantId, number>): SimulationResult {
   }
 
   // --- Fase 3: ringkasan ---
-  const timeById = new Map(chainNodes.map((n) => [n.id, n.timeValue]));
   const failed = chainNodes.filter((n) => outcomes.get(n.id)?.status === "fails");
   const failedInOrder = [...failed]
     .sort((a, b) => a.timeValue - b.timeValue)
@@ -149,6 +149,5 @@ export function simulate(values: Record<ConstantId, number>): SimulationResult {
   const counts = { survives: 0, altered: 0, fails: 0 };
   for (const [, o] of outcomes) counts[o.status]++;
 
-  void timeById;
   return { outcomes, firstFailure, failedInOrder, counts, anyChange };
 }

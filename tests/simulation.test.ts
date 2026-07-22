@@ -139,17 +139,12 @@ describe("simulate engine", () => {
     const v = nominalValues();
     v.alpha = 0.02;
     const res = simulate(v);
-    const times = res.failedInOrder.map(
-      (id) => res.outcomes.get(id) && id
-    );
     // verify monotonic non-decreasing timeValue
-    const { chainNodes: nodes } = require("../src/data/chain-nodes");
-    const tv = new Map(nodes.map((n: any) => [n.id, n.timeValue]));
+    const tv = new Map(chainNodes.map((n) => [n.id, n.timeValue]));
     for (let i = 1; i < res.failedInOrder.length; i++) {
       expect(tv.get(res.failedInOrder[i])).toBeGreaterThanOrEqual(
         tv.get(res.failedInOrder[i - 1])
       );
     }
-    expect(times.length).toBe(res.failedInOrder.length);
   });
 });
