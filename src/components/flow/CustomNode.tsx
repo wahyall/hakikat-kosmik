@@ -25,12 +25,21 @@ export interface ChainNodeData extends Record<string, unknown> {
   isHighlighted?: boolean;
   isSelected?: boolean;
   isTraversalActive?: boolean;
+  simStatus?: "survives" | "altered" | "fails";
 }
 
 function CustomNodeImpl({ data, id }: NodeProps) {
   const chainData = data as unknown as ChainNodeData;
   const node = chainData.node;
   const color = CATEGORY_COLORS[node.category];
+
+  const simStatus = chainData.simStatus;
+  const simClass =
+    simStatus === "fails"
+      ? "ring-2 ring-rose-500 saturate-50 opacity-60"
+      : simStatus === "altered"
+      ? "ring-2 ring-amber-500"
+      : "";
 
   const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
   const timelineTimeValue = useFlowStore((s) => s.timelineTimeValue);
@@ -80,7 +89,8 @@ function CustomNodeImpl({ data, id }: NodeProps) {
         (isSelected || timelineHighlight) && "ring-2 ring-offset-1 " + color.ring,
         (isSelected || timelineHighlight) && "shadow-md scale-[1.03]",
         isTraversalNode &&
-          "ring-4 ring-emerald-500 shadow-lg shadow-emerald-500/30 scale-[1.06] z-10 animate-traverse-pulse"
+          "ring-4 ring-emerald-500 shadow-lg shadow-emerald-500/30 scale-[1.06] z-10 animate-traverse-pulse",
+        simClass
       )}
     >
       {/* Handle: TOP = target (incoming dari akibat) */}
@@ -124,6 +134,16 @@ function CustomNodeImpl({ data, id }: NodeProps) {
           {node.isBoundary && (
             <span className="text-[10px] font-bold bg-gray-400 text-gray-950 rounded px-1 py-0.5">
               B
+            </span>
+          )}
+          {simStatus === "fails" && (
+            <span className="text-[10px] font-bold bg-rose-500 text-white rounded px-1 py-0.5">
+              ✕
+            </span>
+          )}
+          {simStatus === "altered" && (
+            <span className="text-[10px] font-bold bg-amber-400 text-amber-950 rounded px-1 py-0.5">
+              ≈
             </span>
           )}
         </div>

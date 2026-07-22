@@ -15,7 +15,7 @@
  * meningkatkan probabilitas posterior — sejalan dengan QS Al-Mulk:3-4.
  */
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useFlowStore } from "@/store/flow-store";
 import {
   fineTuningConstants,
@@ -23,44 +23,38 @@ import {
   fineTuningResponses,
   type FineTuningConstant,
 } from "@/data/fine-tuning-constants";
-import { X, SlidersHorizontal, FlaskConical, RotateCcw, Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { simulate } from "@/lib/flow/simulation";
+import { chainNodes } from "@/data/chain-nodes";
+import type { ConstantId } from "@/data/fine-tuning-impact";
+import {
+  X,
+  SlidersHorizontal,
+  FlaskConical,
+  RotateCcw,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+  GitCompareArrows,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function FineTuningMode() {
   const panelMode = useFlowStore((s) => s.panelMode);
   const setPanelMode = useFlowStore((s) => s.setPanelMode);
-
-  // State slider: id -> nilai (numerik)
-  const [values, setValues] = useState<Record<string, number>>(() => {
-    const init: Record<string, number> = {};
-    fineTuningConstants.forEach((c) => {
-      init[c.id] = c.nominalValue;
-    });
-    return init;
-  });
+  const values = useFlowStore((s) => s.simValues);
+  const setSimValue = useFlowStore((s) => s.setSimValue);
+  const resetSim = useFlowStore((s) => s.resetSim);
+  const showCorrelations = useFlowStore((s) => s.showCorrelations);
+  const toggleCorrelations = useFlowStore((s) => s.toggleCorrelations);
 
   const isOpen = panelMode === "finetuning";
 
-  const reset = () => {
-    const init: Record<string, number> = {};
-    fineTuningConstants.forEach((c) => {
-      init[c.id] = c.nominalValue;
-    });
-    setValues(init);
-  };
-
-  // Status habitability keseluruhan
-  const overallStatus = useMemo(() => {
-    let allHabitable = true;
-    for (const c of fineTuningConstants) {
-      const v = values[c.id];
-      if (v < c.habitableMin || v > c.habitableMax) {
-        allHabitable = false;
-        break;
-      }
-    }
-    return allHabitable;
-  }, [values]);
+  const sim = useMemo(() => simulate(values), [values]);
+  const overallStatus = sim.counts.fails === 0;
+  const nodeLabel = useMemo(() => {
+    const m = new Map(chainNodes.map((n) => [n.id, n.label]));
+    return (id: string) => m.get(id) ?? id;
+  }, []);
 
   if (!isOpen) return null;
 
@@ -79,7 +73,7 @@ export function FineTuningMode() {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={reset}
+            onClick={resetSim}
             className="text-[10px] px-2 py-1 rounded border hover:bg-muted flex items-center gap-1"
             aria-label="Reset ke nilai aktual"
           >
@@ -131,6 +125,54 @@ export function FineTuningMode() {
         </div>
       </div>
 
+      {/* Ringkasan cascade simulasi */}
+      {sim.anyChange && (
+        <div className="p-3 border-b space-y-2 bg-muted/30">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              Dampak pada Rantai Peristiwa
+            </h4>
+            <button
+              onClick={toggleCorrelations}
+              className={cn(
+                "text-[10px] px-2 py-1 rounded border flex items-center gap-1",
+                showCorrelations ? "bg-foreground text-background" : "hover:bg-muted"
+              )}
+              aria-pressed={showCorrelations}
+            >
+              <GitCompareArrows className="w-3 h-3" />
+              Garis Korelasi
+            </button>
+          </div>
+          <div className="flex gap-2 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+              Bertahan: <strong>{sim.counts.survives}</strong>
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">
+              Berubah: <strong>{sim.counts.altered}</strong>
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-300">
+              Tak terbentuk: <strong>{sim.counts.fails}</strong>
+            </span>
+          </div>
+          {sim.firstFailure && (
+            <p className="text-[11px] leading-relaxed">
+              <strong className="text-rose-700 dark:text-rose-300">Titik rantai putus:</strong>{" "}
+              {nodeLabel(sim.firstFailure.nodeId)} — semua peristiwa sesudahnya tidak akan terbentuk.
+            </p>
+          )}
+          {sim.failedInOrder.length > 0 && (
+            <ol className="text-[10px] space-y-0.5 max-h-32 overflow-y-auto list-decimal list-inside">
+              {sim.failedInOrder.map((id) => (
+                <li key={id} className="text-rose-700/90 dark:text-rose-300/90">
+                  {nodeLabel(id)}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
+
       {/* Body — sliders + cards */}
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="p-3 space-y-3">
@@ -139,7 +181,7 @@ export function FineTuningMode() {
               key={c.id}
               constant={c}
               value={values[c.id]}
-              onChange={(v) => setValues((prev) => ({ ...prev, [c.id]: v }))}
+              onChange={(v) => setSimValue(c.id as ConstantId, v)}
             />
           ))}
 

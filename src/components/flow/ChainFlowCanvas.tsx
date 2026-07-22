@@ -35,6 +35,8 @@ import { CustomNode, type ChainNodeData } from "./CustomNode";
 import { getLayoutedElements, CATEGORY_COLORS } from "@/lib/flow/layout";
 import { useFlowStore } from "@/store/flow-store";
 import { cn } from "@/lib/utils";
+import { simulate } from "@/lib/flow/simulation";
+import { chainCorrelations } from "@/data/chain-correlations";
 
 const nodeTypes = { custom: CustomNode };
 
@@ -73,6 +75,22 @@ const TRAVERSAL_SEQUENCE = [
 
 const TRAVERSAL_STEP_MS = 1100; // ~1 detik per node
 
+// Edge korelasi (Task 7) — cross-cutting, TIDAK ikut layout dagre agar
+// tidak mendistorsi susunan vertikal kausal. Digabung setelah layout.
+const CORRELATION_STYLE: Record<string, string> = {
+  dependency: "#8b5cf6", // violet
+  "shared-cause": "#0ea5e9", // sky
+  analogy: "#14b8a6", // teal
+  thematic: "#f59e0b", // amber
+};
+
+const CORRELATION_LABELS: Record<string, string> = {
+  dependency: "Dependensi",
+  "shared-cause": "Sebab bersama",
+  analogy: "Analogi",
+  thematic: "Tematik",
+};
+
 function FlowInner() {
   const activeBranch = useFlowStore((s) => s.activeBranch);
   const activeCategories = useFlowStore((s) => s.activeCategories);
@@ -81,6 +99,9 @@ function FlowInner() {
   const timelineTimeValue = useFlowStore((s) => s.timelineTimeValue);
   const setSelectedNode = useFlowStore((s) => s.setSelectedNode);
   const setBranch = useFlowStore((s) => s.setBranch);
+  const simValues = useFlowStore((s) => s.simValues);
+  const panelMode = useFlowStore((s) => s.panelMode);
+  const showCorrelations = useFlowStore((s) => s.showCorrelations);
 
   // Traversal state
   const traversalActive = useFlowStore((s) => s.traversalActive);
@@ -125,6 +146,9 @@ function FlowInner() {
     });
   }, [filteredNodes, activeBranch]);
 
+  const simEnabled = panelMode === "finetuning";
+  const sim = useMemo(() => simulate(simValues), [simValues]);
+
   // Hitung dim/active state untuk setiap node
   const decoratedNodes = useMemo(() => {
     return filteredNodes.map((n) => {
@@ -149,6 +173,7 @@ function FlowInner() {
         isHighlighted: timelineMatch || isTraversalActiveNode,
         isSelected: selectedNodeId === n.id,
         isTraversalActive: isTraversalActiveNode,
+        simStatus: simEnabled && sim.anyChange ? sim.outcomes.get(n.id)?.status : undefined,
       };
     });
   }, [
@@ -159,6 +184,8 @@ function FlowInner() {
     selectedNodeId,
     traversalActive,
     traversalNodeId,
+    sim,
+    simEnabled,
   ]);
 
   // Convert ke React Flow node format
@@ -167,7 +194,7 @@ function FlowInner() {
       id: n.id,
       type: "custom",
       position: { x: 0, y: 0 },
-      data: { node: n } as unknown as ChainNodeData,
+      data: { node: n, simStatus: n.simStatus } as unknown as ChainNodeData,
     }));
   }, [decoratedNodes]);
 
@@ -210,6 +237,31 @@ function FlowInner() {
     });
   }, [filteredEdges, traversalActive, traversalIndex]);
 
+  const correlationEdges: Edge[] = useMemo(() => {
+    if (!showCorrelations) return [];
+    const visibleIds = new Set(filteredNodes.map((n) => n.id));
+    return chainCorrelations
+      .filter((c) => visibleIds.has(c.source) && visibleIds.has(c.target))
+      .map((c) => ({
+        id: c.id,
+        source: c.source,
+        target: c.target,
+        label: c.label,
+        type: "smoothstep",
+        animated: false,
+        markerEnd: { type: MarkerType.Arrow, width: 14, height: 14 },
+        style: {
+          stroke: CORRELATION_STYLE[c.kind] ?? "#8b5cf6",
+          strokeWidth: 1.5,
+          strokeDasharray: "5 4",
+          opacity: 0.85,
+        },
+        labelStyle: { fontSize: 9, fill: CORRELATION_STYLE[c.kind] ?? "#8b5cf6" },
+        labelBgStyle: { fill: "var(--background)", opacity: 0.85 },
+        zIndex: 0,
+      }));
+  }, [showCorrelations, filteredNodes]);
+
   // Layout dengan dagre — VERTIKAL (TB)
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
     return getLayoutedElements(rfNodes, rfEdges, {
@@ -225,8 +277,8 @@ function FlowInner() {
   // Update state ketika layout berubah
   useEffect(() => {
     setNodes(layoutedNodes);
-    setEdges(layoutedEdges);
-  }, [layoutedNodes, layoutedEdges, setNodes, setEdges]);
+    setEdges([...layoutedEdges, ...correlationEdges]);
+  }, [layoutedNodes, layoutedEdges, correlationEdges, setNodes, setEdges]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
@@ -358,6 +410,19 @@ function FlowInner() {
         className="!bg-background !border !border-border !shadow-sm !rounded-md"
         // showInteractive={false}
       />
+      {showCorrelations && (
+        <Panel position="bottom-right" className="!m-2">
+          <div className="rounded-md border bg-background/90 backdrop-blur p-2 text-[9px] space-y-1 shadow-sm">
+            <p className="font-bold uppercase tracking-wide text-muted-foreground">Korelasi</p>
+            {Object.entries(CORRELATION_STYLE).map(([kind, color]) => (
+              <div key={kind} className="flex items-center gap-1">
+                <span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: color }} />
+                {CORRELATION_LABELS[kind]}
+              </div>
+            ))}
+          </div>
+        </Panel>
+      )}
       {/* <MiniMap
         pannable
         zoomable
