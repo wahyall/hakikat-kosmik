@@ -16,6 +16,8 @@
 
 import { create } from "zustand";
 import type { ChainBranch, ChainCategory } from "@/data/chain-nodes";
+import type { ConstantId } from "@/data/fine-tuning-impact";
+import { nominalValues } from "@/lib/flow/simulation";
 
 export type ActiveBranch = ChainBranch | "all";
 
@@ -52,6 +54,9 @@ interface FlowState {
   // Focus node — ketika user klik tik timeline, set id ini agar canvas
   // otomatis pan/zoom ke node tersebut (consumed sekali, lalu di-clear).
   focusNodeId: string | null;
+  // Fine-tuning simulation
+  simValues: Record<ConstantId, number>;
+  showCorrelations: boolean;
   // Actions
   setBranch: (b: ActiveBranch) => void;
   setSearchQuery: (q: string) => void;
@@ -67,6 +72,9 @@ interface FlowState {
   setTraversalIndex: (i: number) => void;
   setTraversalNodeId: (id: string | null) => void;
   setFocusNode: (id: string | null) => void;
+  setSimValue: (id: ConstantId, v: number) => void;
+  resetSim: () => void;
+  toggleCorrelations: () => void;
 }
 
 export const useFlowStore = create<FlowState>((set) => ({
@@ -93,6 +101,8 @@ export const useFlowStore = create<FlowState>((set) => ({
   traversalIndex: 0,
   traversalNodeId: null,
   focusNodeId: null,
+  simValues: nominalValues(),
+  showCorrelations: false,
 
   setBranch: (b) =>
     set({ activeBranch: b, selectedNodeId: null, timelineTimeValue: null }),
@@ -137,4 +147,9 @@ export const useFlowStore = create<FlowState>((set) => ({
   setTraversalIndex: (i) => set({ traversalIndex: i }),
   setTraversalNodeId: (id) => set({ traversalNodeId: id }),
   setFocusNode: (id) => set({ focusNodeId: id }),
+  setSimValue: (id, v) =>
+    set((s) => ({ simValues: { ...s.simValues, [id]: v } })),
+  resetSim: () => set({ simValues: nominalValues() }),
+  toggleCorrelations: () =>
+    set((s) => ({ showCorrelations: !s.showCorrelations })),
 }));
