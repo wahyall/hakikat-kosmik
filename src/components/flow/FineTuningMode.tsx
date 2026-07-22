@@ -50,7 +50,7 @@ export function FineTuningMode() {
   const isOpen = panelMode === "finetuning";
 
   const sim = useMemo(() => simulate(values), [values]);
-  const overallStatus = sim.counts.fails === 0 && sim.counts.altered === 0;
+  const overallStatus = sim.counts.fails === 0;
   const nodeLabel = useMemo(() => {
     const m = new Map(chainNodes.map((n) => [n.id, n.label]));
     return (id: string) => m.get(id) ?? id;
