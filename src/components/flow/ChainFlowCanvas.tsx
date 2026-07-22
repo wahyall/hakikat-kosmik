@@ -75,6 +75,22 @@ const TRAVERSAL_SEQUENCE = [
 
 const TRAVERSAL_STEP_MS = 1100; // ~1 detik per node
 
+// Edge korelasi (Task 7) — cross-cutting, TIDAK ikut layout dagre agar
+// tidak mendistorsi susunan vertikal kausal. Digabung setelah layout.
+const CORRELATION_STYLE: Record<string, string> = {
+  dependency: "#8b5cf6", // violet
+  "shared-cause": "#0ea5e9", // sky
+  analogy: "#14b8a6", // teal
+  thematic: "#f59e0b", // amber
+};
+
+const CORRELATION_LABELS: Record<string, string> = {
+  dependency: "Dependensi",
+  "shared-cause": "Sebab bersama",
+  analogy: "Analogi",
+  thematic: "Tematik",
+};
+
 function FlowInner() {
   const activeBranch = useFlowStore((s) => s.activeBranch);
   const activeCategories = useFlowStore((s) => s.activeCategories);
@@ -220,15 +236,6 @@ function FlowInner() {
       };
     });
   }, [filteredEdges, traversalActive, traversalIndex]);
-
-  // Edge korelasi (Task 7) — cross-cutting, TIDAK ikut layout dagre agar
-  // tidak mendistorsi susunan vertikal kausal. Digabung setelah layout.
-  const CORRELATION_STYLE: Record<string, string> = {
-    dependency: "#8b5cf6", // violet
-    "shared-cause": "#0ea5e9", // sky
-    analogy: "#14b8a6", // teal
-    thematic: "#f59e0b", // amber
-  };
 
   const correlationEdges: Edge[] = useMemo(() => {
     if (!showCorrelations) return [];
@@ -404,13 +411,15 @@ function FlowInner() {
         // showInteractive={false}
       />
       {showCorrelations && (
-        <Panel position="top-left" className="!m-2">
+        <Panel position="bottom-right" className="!m-2">
           <div className="rounded-md border bg-background/90 backdrop-blur p-2 text-[9px] space-y-1 shadow-sm">
             <p className="font-bold uppercase tracking-wide text-muted-foreground">Korelasi</p>
-            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#8b5cf6" }} /> Dependensi</div>
-            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#0ea5e9" }} /> Sebab bersama</div>
-            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#14b8a6" }} /> Analogi</div>
-            <div className="flex items-center gap-1"><span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: "#f59e0b" }} /> Tematik</div>
+            {Object.entries(CORRELATION_STYLE).map(([kind, color]) => (
+              <div key={kind} className="flex items-center gap-1">
+                <span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: color }} />
+                {CORRELATION_LABELS[kind]}
+              </div>
+            ))}
           </div>
         </Panel>
       )}
