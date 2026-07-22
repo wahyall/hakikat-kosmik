@@ -1,0 +1,583 @@
+     1→     1→/**
+     2→     2→ * chain-nodes.ts
+     3→     3→ *
+     4→     4→ * Data node untuk visualisasi "Rantai Sebab-Akibat (Cosmological Chain Explorer)".
+     5→     5→ *
+     6→     6→ * Kerangka argumentatif utama situs ini berakar pada tradisi falsafi Islam:
+     7→     7→ *   - Al-Kindi (dalil al-khair al-mahd / argumen dari kebaikan mutlak)
+     8→     8→ *   - Ibnu Sina (wajib al-wujud vs mumkin al-wujud)
+     9→     9→ *   - Al-Ghazali (silsilah hawadith / rentetan kejadian-kejadian baru tak terhingga)
+    10→    10→ * Tradisi lain (Aquinas per se, Leibniz PSR, Craig Kalam modern) disebut sebagai
+    11→    11→ *   rujukan komparatif — bukan kerangka utama.
+    12→    12→ *
+    13→    13→ * Untuk ayat Al-Qur'an yang berbicara tentang penciptaan, kami menyertakan
+    14→    14→ *   rujukan surah/ayat (QS x:y) DAN parafrase maknanya — bukan kutipan teks
+    15→    15→ *   Arab panjang, sesuai prinsip hemat dan untuk menjaga keterbacaan UI.
+    16→    16→ *
+    17→    17→ * Skema:
+    18→    18→ * - timeValue: detik sejak Big Bang (negatif = sebelum Big Bang dalam model argumentatif;
+    19→    19→ *   positif = setelah Big Bang; 0 = momen Big Bang; untuk "masa kini" pakai 4,35e17 detik ≈ 13,8 miliar tahun)
+    20→    20→ * - Untuk skala log, timeValue tetap disimpan apa adanya; transformasi log dilakukan di UI
+    21→    21→ *
+    22→    22→ * Sumber utama (verifikasi silang minimum 2 sumber per klaim):
+    23→    23→ * - NASA (science.nasa.gov, starchild.gsfc.nasa.gov, imagine.gsfc.nasa.gov)
+    24→    24→ * - ESA Planck (esa.int)
+    25→    25→ * - Harvard CfA, Stanford KIPAC, Yale Astronomy, UC Berkeley
+    26→    26→ * - Wikipedia (cross-checked dengan sumber primer)
+    27→    27→ * - Stanford Encyclopedia of Philosophy (plato.stanford.edu)
+    28→    28→ * - Tafsir Ibnu Katsir, Tafsir Al-Azhar (Hamka), Tazkirah Al-Ghazali
+    29→    29→ * - Nature, Science, PNAS
+    30→    30→ */
+    31→    31→
+    32→    32→export type ChainCategory =
+    33→    33→  | "personal"
+    34→    34→  | "biologis"
+    35→    35→  | "geologis"
+    36→    36→  | "astronomis"
+    37→    37→  | "partikel"
+    38→    38→  | "filosofis";
+    39→    39→
+    40→    40→export type ChainBranch =
+    41→    41→  | "silsilah-manusia"
+    42→    42→  | "kosmologis-utama"
+    43→    43→  | "contoh-hujan"
+    44→    44→  | "contoh-biliar";
+    45→    45→
+    46→    46→export interface QuranReference {
+    47→    47→  /** Contoh: "Al-Baqarah:117" */
+    48→    48→  surah: string;
+    49→    49→  /** Nomor ayat */
+    50→    50→  ayat: number;
+    51→    51→  /** Parafrase makna (bukan kutipan teks Arab) */
+    52→    52→  paraphrase: string;
+    53→    53→}
+    54→    54→
+    55→    55→export interface ChainNode {
+    56→    56→  id: string;
+    57→    57→  label: string;
+    58→    58→  category: ChainCategory;
+    59→    59→  timeLabel: string;
+    60→    60→  /** Detik sejak Big Bang. 0 = momen Big Bang. Untuk "masa kini" = ~4,35e17. */
+    61→    61→  timeValue: number;
+    62→    62→  description: string;
+    63→    63→  sources?: string[];
+    64→    64→  branch: ChainBranch;
+    65→    65→  /** Jika true, node ini adalah terminal filosofis (bukan klaim ilmiah) */
+    66→    66→  isPhilosophical?: boolean;
+    67→    67→  /** Jika true, node ini menandai batas penjelasan ilmiah */
+    68→    68→  isBoundary?: boolean;
+    69→    69→  /** Rujukan Qur'ani yang bercokol dengan tema node (opsional) */
+    70→    70→  quranRefs?: QuranReference[];
+    71→    71→}
+    72→    72→
+    73→    73→/**
+    74→    74→ * Konstanta: usia alam semesta dalam detik (13,8 miliar tahun).
+    75→    75→ * 13,8e9 tahun × 365,25 × 24 × 3600 ≈ 4,355 × 10^17 detik
+    76→    76→ */
+    77→    77→export const UNIVERSE_AGE_SECONDS = 4.355e17;
+    78→    78→
+    79→    79→export const chainNodes: ChainNode[] = [
+    80→    80→  // ====================================================================
+    81→    81→  // BRANCH A: JALUR KOSMOLOGIS UTAMA (dari masa kini mundur ke Big Bang
+    82→    82→  //           lalu ke argumen filosofis Sebab Pertama)
+    83→    83→  // ====================================================================
+    84→    84→
+    85→    85→  {
+    86→    86→    id: "a-now",
+    87→    87→    label: "Masa Kini",
+    88→    88→    category: "personal",
+    89→    89→    timeLabel: "Sekarang",
+    90→    90→    timeValue: UNIVERSE_AGE_SECONDS,
+    91→    91→    description:
+    92→    92→      "Anda membaca kalimat ini pada momen tertentu dalam sejarah kosmik. Dari perspektif skala waktu alam semesta, keberadaan manusia modern hanyalah setitik di akhir rantai sebab-akibat yang membentang sekitar 13,8 miliar tahun. Setiap peristiwa yang Anda alami hari ini dapat ditelusuri kembali, langkah demi langkah, hingga ke peristiwa-peristiwa pada detik pertama alam semesta.",
+    93→    93→    sources: ["ESA Planck 2018", "NASA WMAP"],
+    94→    94→    branch: "kosmologis-utama",
+    95→    95→    quranRefs: [
+    96→    96→      {
+    97→    97→        surah: "Al-An'am",
+    98→    98→        ayat: 59,
+    99→    99→        paraphrase:
+   100→   100→          "Pada sisi-Nya terdapat kunci-kunci semua yang gaib; tidak ada yang mengetahui selain Dia. Ia mengetahui apa yang di daratan dan di lautan, dan tidak sehelai daun pun gugur melainkan Ia mengetahui — mengisyaratkan bahwa setiap kejadian kecil pun berada dalam jaringan sebab-akibat yang Ia ketahui.",
+   101→   101→      },
+   102→   102→    ],
+   103→   103→  },
+   104→   104→  {
+   105→   105→    id: "a-homo-sapiens",
+   106→   106→    label: "Homo sapiens Modern",
+   107→   107→    category: "biologis",
+   108→   108→    timeLabel: "~300.000 tahun lalu",
+   109→   109→    timeValue: UNIVERSE_AGE_SECONDS - 300_000 * 365.25 * 24 * 3600,
+   110→   110→    description:
+   111→   111→      "Fosil tertua yang diklasifikasikan sebagai Homo sapiens ditemukan di gua Jebel Irhoud, Maroko, dan diberi tanggal sekitar 300.000 tahun lalu. Temuan 2017 ini menggeser perkiraan sebelumnya (~200.000 tahun) dan menunjukkan bahwa ciri-ciri wajah modern telah muncul lebih awal dari yang sebelumnya diyakini. Otak mereka sudah memiliki kapasitas kognitif yang pada akhirnya memungkinkan refleksi filosofis tentang asal-usul — termasuk pertanyaan yang sedang Anda eksplorasi sekarang.",
+   112→   112→    sources: ["Nature (Hublin et al. 2017)", "Smithsonian Human Origins", "Science AAAS"],
+   113→   113→    branch: "kosmologis-utama",
+   114→   114→  },
+   115→   115→  {
+   116→   116→    id: "a-abiogenesis",
+   117→   117→    label: "Asal-Usul Kehidupan (Abiogenesis)",
+   118→   118→    category: "biologis",
+   119→   119→    timeLabel: "~3,5–3,8 miliar tahun lalu",
+   120→   120→    timeValue: UNIVERSE_AGE_SECONDS - 3.65e9 * 365.25 * 24 * 3600,
+   121→   121→    description:
+   122→   122→      "Bukti fosil paling kuat untuk kehidupan paling awal adalah stromatolit dari Formasi Dresser, Australia Barat, berusia sekitar 3,48 miliar tahun. Beberapa peneliti berargumen bahwa biosignatur kimia dapat ditemukan di batuan yang lebih tua lagi, hingga 3,7–3,8 miliar tahun. Kondisi permukaan Bumi sendiri diperkirakan mulai mendukung kehidupan sejak ~4,3 miliar tahun lalu, sehingga ada jendela waktu yang luas di mana abiogenesis dapat terjadi. Mekanisme tepatnya — misalnya 'dunia RNA', ventilasi hidrotermal, atau panspermia — masih diperdebatkan.",
+   123→   123→    sources: ["Wikipedia: Earliest known life forms", "UC Berkeley Understanding Evolution", "University of Chicago News"],
+   124→   124→    branch: "kosmologis-utama",
+   125→   125→    quranRefs: [
+   126→   126→      {
+   127→   127→        surah: "Al-Anbiya",
+   128→   128→        ayat: 30,
+   129→   129→        paraphrase:
+   130→   130→          "(lanjutan) …dan dari air Kami jadikan segala sesuatu yang hidup. Mengapa mereka tidak beriman? — banyak mufassir mengaitkan teks ini dengan asal-usul kehidupan biologis yang bergantung pada air.",
+   131→   131→      },
+   132→   132→    ],
+   133→   133→  },
+   134→   134→  {
+   135→   135→    id: "a-earth-formation",
+   136→   136→    label: "Pembentukan Bumi",
+   137→   137→    category: "geologis",
+   138→   138→    timeLabel: "~4,54 miliar tahun lalu",
+   139→   139→    timeValue: UNIVERSE_AGE_SECONDS - 4.54e9 * 365.25 * 24 * 3600,
+   140→   140→    description:
+   141→   141→      "Bumi terbentuk dari akresi materi di dalam cakram protoplanet sekitar 4,54 miliar tahun lalu, sedikit lebih muda dari Matahari. Bukti geologis tertua yang masih tersisa adalah butir zirkon dari Jack Hills, Australia Barat, berusia 4,404 miliar tahun — artinya kerak benua awal sudah mulai mengeras hanya ~150 juta tahun setelah Bumi terbentuk. Kondisi awal Bumi sangat panas dan mengalami pemboman asteroid intensif sebelum akhirnya mendingin cukup untuk menampung air cair dan kehidupan.",
+   142→   142→    sources: ["UW-Madison News", "OpenGeology: Earth's Oldest Rocks", "University of Chicago News"],
+   143→   143→    branch: "kosmologis-utama",
+   144→   144→  },
+   145→   145→  {
+   146→   146→    id: "a-solar-system",
+   147→   147→    label: "Pembentukan Tata Surya",
+   148→   148→    category: "astronomis",
+   149→   149→    timeLabel: "~4,6 miliar tahun lalu",
+   150→   150→    timeValue: UNIVERSE_AGE_SECONDS - 4.6e9 * 365.25 * 24 * 3600,
+   151→   151→    description:
+   152→   152→      "Tata Surya terbentuk dari runtuhnya gravitasi pada bagian kecil awan molekul raksasa, kemungkinan dipicu oleh gelombang kejut supernova bintang generasi sebelumnya. Material yang berputar membentuk cakram protoplanet, dengan mayoritas massa terkumpul di pusat dan menyala menjadi Matahari, sementara materi tersisa berakresi menjadi planet. Penting: unsur-unsur berat dalam kabut ini (karbon, oksigen, silikon, besi, emas) tidak dihasilkan oleh Big Bang, melainkan oleh bintang-bintang generasi sebelumnya yang meledak sebagai supernova.",
+   153→   153→    sources: ["NASA Science", "AMNH", "Natural History Museum London", "Planetary Society"],
+   154→   154→    branch: "kosmologis-utama",
+   155→   155→    quranRefs: [
+   156→   156→      {
+   157→   157→        surah: "Al-Anbiya",
+   158→   158→        ayat: 30,
+   159→   159→        paraphrase:
+   160→   160→          "(awal) Tidakkah orang kafir melihat bahwa langit dan bumi keduanya dahulu menyatu, lalu Kami pisahkan — pengakuan adanya tahap pemisahan/pembentukan struktur dari keadaan awal yang seragam.",
+   161→   161→      },
+   162→   162→    ],
+   163→   163→  },
+   164→   164→  {
+   165→   165→    id: "a-first-galaxies",
+   166→   166→    label: "Galaksi-Galaksi Pertama",
+   167→   167→    category: "astronomis",
+   168→   168→    timeLabel: "~350–400 juta tahun setelah Big Bang",
+   169→   169→    timeValue: 3.85e8 * 365.25 * 24 * 3600,
+   170→   170→    description:
+   171→   171→      "Galaksi-galaksi pertama mulai terbentuk sekitar 200–400 juta tahun setelah Big Bang, ketika gumpalan gas hidrogen dan helium tertarik oleh gravitasi dan menghasilkan bentuk-bentuk awal yang kita kenal sebagai galaksi. Pengamatan JWST telah menemukan galaksi seperti JADES-GS-z14-0 yang ada hanya ~290 juta tahun setelah Big Bang — lebih awal dari yang diperkirakan sebelumnya, dan menantukan model pembentukan galaksi yang ada. Galaksi-galaksi ini menjadi 'pabrik' bintang-bintang generasi berikutnya.",
+   172→   172→    sources: ["Harvard CfA", "NASA JWST", "PNAS", "UC Santa Cruz News"],
+   173→   173→    branch: "kosmologis-utama",
+   174→   174→  },
+   175→   175→  {
+   176→   176→    id: "a-first-stars",
+   177→   177→    label: "Bintang Pertama (Populasi III)",
+   178→   178→    category: "astronomis",
+   179→   179→    timeLabel: "~100 juta tahun setelah Big Bang",
+   180→   180→    timeValue: 1e8 * 365.25 * 24 * 3600,
+   181→   181→    description:
+   182→   182→      "Bintang-bintang pertama, yang dikenal sebagai Populasi III, diperkirakan menyala sekitar 100 juta tahun setelah Big Bang. Mereka terbentuk dari gas nyaris murni hidrogen dan helium (elemen paling ringan hasil nukleosintesis Big Bang) dan sangat masif serta panas. Akhir hayat mereka, sering sebagai supernova, menyemai alam semesta dengan unsur-unsur berat pertama (karbon, oksigen, besi) yang nantinya menjadi bahan baku Tata Surya dan kehidupan. Kegiatan mereka juga mengakhiri 'Zaman Kegelapan' kosmik melalui proses yang disebut reionisasi.",
+   183→   183→    sources: ["NASA Science", "Stanford KIPAC", "Astrobites", "Yale Astronomy (Larson)"],
+   184→   184→    branch: "kosmologis-utama",
+   185→   185→  },
+   186→   186→  {
+   187→   187→    id: "a-recombination",
+   188→   188→    label: "Rekombinasi & Latar CMB",
+   189→   189→    category: "partikel",
+   190→   190→    timeLabel: "~380.000 tahun setelah Big Bang",
+   191→   191→    timeValue: 380_000 * 365.25 * 24 * 3600,
+   192→   192→    description:
+   193→   193→      "Sekitar 380.000 tahun setelah Big Bang, suhu alam semesta mendingin cukup (hingga ~3000 K) sehingga elektron dapat bergabung dengan inti atom hidrogen dan helium. Sebelumnya, foton terus-menerus tersebar oleh elektron bebas, membuat alam semesta buram; setelah rekombinasi, foton dapat bergerak bebas untuk pertama kalinya. Radiasi yang dilepaskan saat inilah yang kita deteksi hari ini sebagai Cosmic Microwave Background (CMB) — 'foto bayi' tertua alam semesta.",
+   194→   194→    sources: ["Harvard CfA", "Yale Astronomy", "Space.com", "phys.org"],
+   195→   195→    branch: "kosmologis-utama",
+   196→   196→  },
+   197→   197→  {
+   198→   198→    id: "a-nucleosynthesis",
+   199→   199→    label: "Nukleosintesis Big Bang",
+   200→   200→    category: "partikel",
+   201→   201→    timeLabel: "Menit ke-3 hingga ke-20",
+   202→   202→    timeValue: 600,
+   203→   203→    description:
+   204→   204→      "Ketika alam semesta berusia beberapa menit, suhunya turun cukup (sekitar satu miliar Kelvin) sehingga proton dan neutron dapat bergabung membentuk inti atom ringan. Pada periode ini, sekitar 75% hidrogen-1, 25% helium-4, dan jejak litium-7 terbentuk. Rasio elemen-elemen ringan ini, yang teramati di alam semesta hari ini, adalah salah satu prediksi paling kuat dari model Big Bang. Unsur-unsul berat seperti karbon dan besi belum ada — mereka akan disintesa di inti bintang nanti.",
+   205→   205→    sources: ["NASA Imagine the Universe", "Einstein-Online", "Wikipedia: Chronology of the universe"],
+   206→   206→    branch: "kosmologis-utama",
+   207→   207→  },
+   208→   208→  {
+   209→   209→    id: "a-lepton-epoch",
+   210→   210→    label: "Era Lepton",
+   211→   211→    category: "partikel",
+   212→   212→    timeLabel: "Detik ke-1 hingga ke-10",
+   213→   213→    timeValue: 5,
+   214→   214→    description:
+   215→   215→      "Setelah era hadron, sekitar satu detik setelah Big Bang, suhu telah turun cukup sehingga pasangan lepton-antilepton (seperti elektron-positron) tidak lagi terbentuk secara masal. Sisa elektron yang tersisa mendominasi massa-radiasi, dan periode ini disebut era lepton. Setelah sekitar 10 detik, suhu menjadi terlalu rendah untuk menjaga lepton dalam kesetimbangan termal, dan alam semesta memasuki era dominasi foton yang akan bertahan hingga rekombinasi.",
+   216→   216→    sources: ["Wikipedia: Chronology of the universe", "Physics of the Universe"],
+   217→   217→    branch: "kosmologis-utama",
+   218→   218→  },
+   219→   219→  {
+   220→   220→    id: "a-hadron-epoch",
+   221→   221→    label: "Era Hadron (proton & neutron)",
+   222→   222→    category: "partikel",
+   223→   223→    timeLabel: "10⁻⁶ hingga 1 detik",
+   224→   224→    timeValue: 1e-3,
+   225→   225→    description:
+   226→   226→      "Saat alam semesta berusia sekitar satu mikrodetik (10⁻⁶ s), suhu turun di bawah energi konfinemen QCD (~2×10¹² K), dan quark serta gluon yang sebelumnya bebas mulai terkonfinasi menjadi hadron — terutama proton dan neutron. Pada saat ini juga terjadi baryogenesis, proses yang menyebabkan asimetri kecil antara materi dan antimateri. Tanpa asimetri ini (sekitar 1 bagian per miliar), alam semesta akan berisi hanya radiasi, tanpa materi yang bisa membentuk bintang atau kita.",
+   227→   227→    sources: ["Wikipedia: Chronology of the universe", "arXiv: QCD Baryogenesis", "Physics of the Universe"],
+   228→   228→    branch: "kosmologis-utama",
+   229→   229→  },
+   230→   230→  {
+   231→   231→    id: "a-quark-epoch",
+   232→   232→    label: "Era Quark (plasma quark-gluon)",
+   233→   233→    category: "partikel",
+   234→   234→    timeLabel: "10⁻¹² hingga 10⁻⁶ detik",
+   235→   235→    timeValue: 1e-9,
+   236→   236→    description:
+   237→   237→      "Antara 10⁻¹² dan 10⁻⁶ detik setelah Big Bang, alam semesta berupa 'quark-gluon plasma' — sup kuantum yang sangat panas di mana quark dan gluon belum terkonfinasi ke dalam hadron. Suhu pada awal era ini melebihi 10¹⁵ Kelvin. Pada akhir era ini, interaksi kuat (QCD) menjadi cukup dominan untuk 'menangkap' quark ke dalam proton dan neutron — proses yang disebut konfinemen warna.",
+   238→   238→    sources: ["Wikipedia: Chronology of the universe", "Physics of the Universe", "arXiv: Particle Cosmology"],
+   239→   239→    branch: "kosmologis-utama",
+   240→   240→  },
+   241→   241→  {
+   242→   242→    id: "a-electroweak",
+   243→   243→    label: "Era Elektrolemah",
+   244→   244→    category: "partikel",
+   245→   245→    timeLabel: "10⁻³² hingga 10⁻¹² detik",
+   246→   246→    timeValue: 1e-22,
+   247→   247→    description:
+   248→   248→      "Setelah inflasi berakhir (~10⁻³² s), alam semesta memasuki era elektrolemah, di mana gaya lemah nuklir dan gaya elektromagnetik masih menyatu sebagai satu interaksi. Pada akhir era ini, sekitar 10⁻¹² detik, medan Higgs mengalami pemutusan simetri spontan, memberikan massa pada boson W dan Z serta partikel-partikel lain. Inilah momen ketika partikel-partikel yang kita kenal sekarang (elektron, quark, boson) memperoleh properti massanya yang sekarang.",
+   249→   249→    sources: ["Wikipedia: Electroweak epoch", "arXiv: Electroweak Symmetry Breaking", "Big Think"],
+   250→   250→    branch: "kosmologis-utama",
+   251→   251→  },
+   252→   252→  {
+   253→   253→    id: "a-inflation",
+   254→   254→    label: "Inflasi Kosmik",
+   255→   255→    category: "partikel",
+   256→   256→    timeLabel: "10⁻³⁶ hingga 10⁻³² detik",
+   257→   257→    timeValue: 1e-34,
+   258→   258→    description:
+   259→   259→      "Inflasi adalah periode pemuaian eksponensial super cepat, di mana jarak antara titik-titik ruang berlipat ganda setiap 10⁻³⁷ detik. Dalam waktu kurang dari 10⁻³² detik, alam semesta membesar minimal faktor 10²⁶. Usulan oleh Alan Guth (1980) dan dikembangkan oleh Andrei Linde dan Alexei Starobinsky, inflasi menjelaskan mengapa alam semesta tampak datar, homogen, dan tanpa monopoli magnetik yang teramati. Setelah inflasi berakhir, energi yang menggerakkannya terurai menjadi partikel-elementer dalam proses 'pemanasan ulang' (reheating).",
+   260→   260→    sources: ["Wikipedia: Cosmic inflation", "Kavli Prize 2014 (Guth, Linde, Starobinsky)", "AIP The Physics Teacher"],
+   261→   261→    branch: "kosmologis-utama",
+   262→   262→  },
+   263→   263→  {
+   264→   264→    id: "a-gut-epoch",
+   265→   265→    label: "Era GUT (Grand Unified)",
+   266→   266→    category: "partikel",
+   267→   267→    timeLabel: "10⁻⁴³ hingga 10⁻³⁶ detik",
+   268→   268→    timeValue: 1e-40,
+   269→   269→    description:
+   270→   270→      "Pada era Grand Unified Theory, tiga dari empat gaya fundamental (kuat, lemah, elektromagnetik) diduga masih menyatu sebagai satu interaksi tunggal. Suhu alam semesta melebihi 10²⁷ Kelvin. Hanya gravitasi yang masih terpisah. Fisika di energi ini belum dapat diuji secara langsung di akselerator partikel mana pun di Bumi, sehingga deskripsi GUT bersifat teoretis — didasarkan pada ekstrapolasi matematis dari teori-teori yang sudah teruji pada energi lebih rendah.",
+   271→   271→    sources: ["University of Oregon Astronomy Notes", "Wikipedia: Chronology of the universe"],
+   272→   272→    branch: "kosmologis-utama",
+   273→   273→  },
+   274→   274→  {
+   275→   275→    id: "a-planck-epoch",
+   276→   276→    label: "Era Planck (batas fisika konvensional)",
+   277→   277→    category: "partikel",
+   278→   278→    timeLabel: "0 hingga 10⁻⁴³ detik",
+   279→   279→    timeValue: 1e-44,
+   280→   280→    description:
+   281→   281→      "Pada 10⁻⁴³ detik pertama setelah Big Bang — yang disebut waktu Planck — alam semesta begitu padat dan kecil sehingga gravitasi diperkirakan memiliki kekuatan yang sebanding dengan tiga gaya fundamental lainnya. Fisika saat ini tidak dapat menjelaskan apa yang terjadi di sini: relativitas umum (yang menjelaskan gravitasi) dan mekanika kuantum (yang menjelaskan partikel) belum berhasil disatukan dalam teori gravitasi kuantum yang teruji. Oleh karena itu, klaim tentang 'apa yang terjadi pada t=0' bersifat spekulatif.",
+   282→   282→    sources: ["Cambridge Cosmology", "Wikipedia: Chronology of the universe"],
+   283→   283→    branch: "kosmologis-utama",
+   284→   284→    isBoundary: true,
+   285→   285→  },
+   286→   286→
+   287→   287→  // --- Node terminal & filosofis ---
+   288→   288→
+   289→   289→  {
+   290→   290→    id: "a-big-bang",
+   291→   291→    label: "Big Bang (sebagai akibat)",
+   292→   292→    category: "astronomis",
+   293→   293→    timeLabel: "t = 0 (titik awal waktu fisik)",
+   294→   294→    timeValue: 0,
+   295→   295→    description:
+   296→   296→      "Big Bang adalah nama untuk model standar kosmologi yang menjelaskan bahwa alam semesta berkembang dari keadaan sangat padat dan panas sekitar 13,8 miliar tahun lalu. Ia bukan 'ledakan' di ruang yang sudah ada, melainkan ekspansi ruang itu sendiri. Penting untuk argumen kita: Big Bang adalah peristiwa yang berawal-dan-berakhir dalam waktu. Ia terikat pada struktur waktu itu sendiri. Karena itu, secara logis Big Bang bukanlah 'sebab pertama' yang tidak bergantung pada apa pun — ia justru adalah akibat yang membutuhkan penjelasan.",
+   297→   297→    sources: ["NASA", "ESA Planck", "Cambridge Cosmology"],
+   298→   298→    branch: "kosmologis-utama",
+   299→   299→    isBoundary: true,
+   300→   300→    quranRefs: [
+   301→   301→      {
+   302→   302→        surah: "Al-Anbiya",
+   303→   303→        ayat: 30,
+   304→   304→        paraphrase:
+   305→   305→          "Tidakkah orang-orang kafir melihat bahwa langit dan bumi keduanya dahulu menyatu, lalu Kami pisahkan — banyak mufassir kontemporer mengaitkan ayat ini dengan ide awal alam semesta yang padat lalu mengembang.",
+   306→   306→      },
+   307→   307→      {
+   308→   308→        surah: "Adh-Dhariyat",
+   309→   309→        ayat: 47,
+   310→   310→        paraphrase:
+   311→   311→          "Dan langit, Kami bangun dengan kekuasaan, dan sesungguhnya Kami benar-benar meluaskannya — kata 'la-musi'un' mengisyaratkan ekspansi ruang, sejalan dengan model Big Bang.",
+   312→   312→      },
+   313→   313→    ],
+   314→   314→  },
+   315→   315→  {
+   316→   316→    id: "a-first-cause",
+   317→   317→    label: "Sebab Pertama — Wajib al-Wujud",
+   318→   318→    category: "filosofis",
+   319→   319→    timeLabel: "Di luar ruang & waktu (konklusi argumentatif)",
+   320→   320→    timeValue: -1,
+   321→   321→    description:
+   322→   322→      "Titik ini bukan klaim ilmiah, melainkan konklusi argumentatif yang muncul dari tradisi falsafi Islam. Alur pemikirannya: (1) Setiap kejadian baru (hawadith) membutuhkan sebab yang mendahuluinya — ini disebut silsilah hawadith oleh Al-Ghazali. (2) Deret kejadian-kejadian yang saling sebab-menyebabkan tidak dapat berjalan terus-menerus ke belakang tanpa awal (tasalsul), karena mustahil ada deret tak terhingga aktual yang habis dilalui. (3) Maka deret harus berhenti pada satu kejadian pertama yang TIDAK sendirinya dihasilkan oleh sebab lain — ia wajib al-wujud (keberadaannya wajib dengan sendirinya), bukan mumkin al-wujud (keberadaannya mungkin ada mungkin tidak). Ibnu Sina membedakan keduanya dengan tegas: mumkin butuh penjelas, wajib tidak. Karena ia bukan materi, bukan di dalam ruang, bukan di dalam waktu, dan tidak tersusun dari bagian, ia bersifat ahad — esa tanpa majemuk. Inilah muara argumen: alam semesta mumkin al-wujud, dan menemukan penjelasannya pada Yang Wajib al-Wujud — yang dalam bahasa tauhid disebut Allah, satu-satunya yang keberadaan-Nya tidak berasal dari apa pun selain diri-Nya.",
+   323→   323→    sources: [
+   324→   324→      "Al-Ghazali, Tahafut al-Falasifa (Inkohensi Para Filsuf)",
+   325→   325→      "Ibnu Sina, Kitab al-Syifa' (al-Ilahiyat) — wajib vs mumkin al-wujud",
+   326→   326→      "Al-Kindi, Falsafah al-Ula — dalil al-khair al-mahd",
+   327→   327→      "Tafsir Ibnu Katsir untuk QS Al-Araf:54, QS Yasin:82-83",
+   328→   328→      "SEP: Arabic and Islamic Philosophy of Causality",
+   329→   329→    ],
+   330→   330→    branch: "kosmologis-utama",
+   331→   331→    isPhilosophical: true,
+   332→   332→    quranRefs: [
+   333→   333→      {
+   334→   334→        surah: "Al-Fatihah",
+   335→   335→        ayat: 2,
+   336→   336→        paraphrase:
+   337→   337→          "Segala puji bagi Allah, Rabb seluruh alam — menetapkan bahwa alam ini milik Yang Mengurusnya, buang gagasan bahwa alam ada dengan sendirinya tanpa Pemilik.",
+   338→   338→      },
+   339→   339→      {
+   340→   340→        surah: "Al-Ikhlas",
+   341→   341→        ayat: 1,
+   342→   342→        paraphrase:
+   343→   343→          "Katakanlah: Dialah Allah Yang Maha Esa — menegaskan tauhid wujud: yang Wajib al-Wujud itu ahad, tidak majemuk, tidak beranak dan tidak diperanakkan.",
+   344→   344→      },
+   345→   345→      {
+   346→   346→        surah: "Yasin",
+   347→   347→        ayat: 82,
+   348→   348→        paraphrase:
+   349→   349→          "Sungguh, keadaan-Nya apabila Ia menghendaki sesuatu hanyalah berkata 'Jadilah!' maka jadilah ia — menunjukkan keberadaan Yang Maha Sebab di luar keterbatasan sebab-akibat dalam alam.",
+   350→   350→      },
+   351→   351→    ],
+   352→   352→  },
+   353→   353→
+   354→   354→  // ====================================================================
+   355→   355→  // BRANCH B: JALUR SILSILAH MANUSIA (personal → Homo sapiens)
+   356→   356→  // Menyambung ke node a-homo-sapiens di Branch A
+   357→   357→  // ====================================================================
+   358→   358→
+   359→   359→  {
+   360→   360→    id: "b-you",
+   361→   361→    label: "Anda",
+   362→   362→    category: "personal",
+   363→   363→    timeLabel: "Hari ini",
+   364→   364→    timeValue: UNIVERSE_AGE_SECONDS,
+   365→   365→    description:
+   366→   366→      "Anda, sebagai individu, adalah akibat dari rantai sebab-akibat biologis yang panjang. Setiap sel dalam tubuh Anda membawa DNA yang diturunkan dari dua orang tua, yang masing-masing membawa DNA dari dua orang tua mereka, dan seterusnya. Rantai ini tidak berhenti di generasi tertentu — ia adalah satu rantai tak terputus yang membentang ke masa lampau biologis, akhirnya bersatu dengan rantai kosmologis di titik munculnya Homo sapiens.",
+   367→   367→    sources: [],
+   368→   368→    branch: "silsilah-manusia",
+   369→   369→  },
+   370→   370→  {
+   371→   371→    id: "b-parents",
+   372→   372→    label: "Orang Tua Anda",
+   373→   373→    category: "personal",
+   374→   374→    timeLabel: "Generasi -1",
+   375→   375→    timeValue: UNIVERSE_AGE_SECONDS - 30 * 365.25 * 24 * 3600,
+   376→   376→    description:
+   377→   377→      "Dua orang yang menggabungkan materi genetik mereka untuk membentuk Anda. Setiap orang menurunkan sekitar setengah genomnya, sehingga Anda adalah kombinasi unik dari DNA keduanya. Kelahiran mereka sendiri juga merupakan akibat dari rantai yang sama — dari orang tua mereka, dan seterusnya.",
+   378→   378→    sources: [],
+   379→   379→    branch: "silsilah-manusia",
+   380→   380→  },
+   381→   381→  {
+   382→   382→    id: "b-grandparents",
+   383→   383→    label: "Kakek-Nenek",
+   384→   384→    category: "personal",
+   385→   385→    timeLabel: "Generasi -2",
+   386→   386→    timeValue: UNIVERSE_AGE_SECONDS - 60 * 365.25 * 24 * 3600,
+   387→   387→    description:
+   388→   388→      "Empat individu, masing-masing menyumbang sekitar seperempat genom Anda. Mereka lahir pada periode yang sangat berbeda secara historis — mungkin melewati Perang Dunia, kemerdekaan negara, atau revolusi teknologi. Tetapi secara biologis, kelahiran mereka mengikuti pola yang sama: setiap individu adalah akibat dari dua orang tua.",
+   389→   389→    sources: [],
+   390→   390→    branch: "silsilah-manusia",
+   391→   391→  },
+   392→   392→  {
+   393→   393→    id: "b-great-grandparents",
+   394→   394→    label: "Buyut",
+   395→   395→    category: "personal",
+   396→   396→    timeLabel: "Generasi -3",
+   397→   397→    timeValue: UNIVERSE_AGE_SECONDS - 90 * 365.25 * 24 * 3600,
+   398→   398→    description:
+   399→   399→      "Delapan leluhur generasi ke-3. Pada titik ini, beberapa di antaranya mungkin lahir di akhir abad ke-19 atau awal abad ke-20 — di dunia tanpa listrik di banyak tempat, tanpa antibiotik, dan tanpa penerbangan. Mereka mungkin tidak pernah membayangkan keturunan yang akan membaca teks ini di layar, tetapi keputusan dan kelangsungan hidup mereka secara kausal membentuk keberadaan Anda.",
+   400→   400→    sources: [],
+   401→   401→    branch: "silsilah-manusia",
+   402→   402→  },
+   403→   403→  {
+   404→   404→    id: "b-ancestors-1000",
+   405→   405→    label: "Leluhur ~1000 generasi lalu",
+   406→   406→    category: "biologis",
+   407→   407→    timeLabel: "~25.000 tahun lalu",
+   408→   408→    timeValue: UNIVERSE_AGE_SECONDS - 25_000 * 365.25 * 24 * 3600,
+   409→   409→    description:
+   410→   410→      "Pada sekitar 25.000 tahun lalu, leluhur Anda adalah pemburu-pengumpul akhir Zaman Es. Mereka hidup bersama dengan Neandertal dan Denisovan di beberapa bagian dunia, dan beberapa genom manusia modern masih membawa jejak DNA dari pertemuan antar-spesies tersebut. Mereka mengembangkan bahasa, seni lukis gua, dan alat-alat batu yang rumit. Jika satu saja dari ribuan leluhur Anda pada periode ini mati muda, Anda — secara harfiah — tidak akan ada.",
+   411→   411→    sources: ["Smithsonian Human Origins"],
+   412→   412→    branch: "silsilah-manusia",
+   413→   413→  },
+   414→   414→  {
+   415→   415→    id: "b-early-hominids",
+   416→   416→    label: "Hominini Awal",
+   417→   417→    category: "biologis",
+   418→   418→    timeLabel: "~6–7 juta tahun lalu",
+   419→   419→    timeValue: UNIVERSE_AGE_SECONDS - 6.5e6 * 365.25 * 24 * 3600,
+   420→   420→    description:
+   421→   421→      "Garis keturunan manusia berpisah dari garis keturunan simpanse sekitar 6–7 juta tahun lalu. Sahelanthropus, Orrorin, dan Ardipithecus adalah beberapa anggota awal keluarga hominini. Mereka berjalan dengan dua kaki secara sporadis dan otaknya masih berukuran mirip simpanse. Evolusi bipedalisme menjadi langkah kunci yang membebaskan tangan untuk penggunaan alat — pra-syarat untuk teknologi yang akhirnya membawa kita ke peradaban modern.",
+   422→   422→    sources: ["Smithsonian Human Origins"],
+   423→   423→    branch: "silsilah-manusia",
+   424→   424→  },
+   425→   425→
+   426→   426→  // ====================================================================
+   427→   427→  // BRANCH C: JALUR CONTOH HUJAN
+   428→   428→  // Hujan → kondensasi → penguapan → matahari → fusi → hidrogen (BBN)
+   429→   429→  // Menyambung ke node a-nucleosynthesis di Branch A
+   430→   430→  // ====================================================================
+   431→   431→
+   432→   432→  {
+   433→   433→    id: "c-rain",
+   434→   434→    label: "Hujan Turun",
+   435→   435→    category: "personal",
+   436→   436→    timeLabel: "Hari ini, beberapa menit lalu",
+   437→   437→    timeValue: UNIVERSE_AGE_SECONDS - 600,
+   438→   438→    description:
+   439→   439→      "Hujan adalah contoh sempurna dari rantai sebab-akibat fisik skala kecil yang dapat kita amati langsung. Tetesan air jatuh ke atap bukan secara acak — setiap tetes adalah akibat dari serangkaian proses fisika yang dapat ditelusuri kembali, langkah demi langkah, hingga ke energi yang dihasilkan di inti Matahari, dan lebih jauh lagi ke atom-atom yang terbentuk di menit pertama alam semesta.",
+   440→   440→    sources: [],
+   441→   441→    branch: "contoh-hujan",
+   442→   442→  },
+   443→   443→  {
+   444→   444→    id: "c-condensation",
+   445→   445→    label: "Kondensasi Uap Air",
+   446→   446→    category: "personal",
+   447→   447→    timeLabel: "Beberapa jam lalu",
+   448→   448→    timeValue: UNIVERSE_AGE_SECONDS - 3600 * 3,
+   449→   449→    description:
+   450→   450→      "Awan terbentuk ketika uap air di atmosfer mendingin dan mengembun di sekitar partikel-partikel kecil (debu, garam, aerosol). Tetesan-tetesan kecil ini tumbuh dan akhirnya menjadi terlalu berat untuk ditahan oleh aliran udara, lalu jatuh sebagai hujan. Proses ini membutuhkan dua input: uap air di atmosfer, dan udara yang lebih dingin di ketinggian.",
+   451→   451→    sources: ["NASA Earth Observatory"],
+   452→   452→    branch: "contoh-hujan",
+   453→   453→  },
+   454→   454→  {
+   455→   455→    id: "c-evaporation",
+   456→   456→    label: "Penguapan Air Permukaan",
+   457→   457→    category: "personal",
+   458→   458→    timeLabel: "Beberapa hari lalu",
+   459→   459→    timeValue: UNIVERSE_AGE_SECONDS - 3600 * 24 * 3,
+   460→   460→    description:
+   461→   461→      "Uap air di atmosfer berasal terutama dari penguapan lautan, danau, dan permukaan tanah. Energi panas dari Matahari memecah sebagian ikatan antar-molekul air di permukaan, melepaskan molekul-molekul air ke udara sebagai gas. Tanpa input energi ini, siklus air akan berhenti dan Bumi akan menjadi planet kering. Inilah titik di mana contoh hujan mulai bersambung ke proses astronomis.",
+   462→   462→    sources: ["NASA Earth Observatory"],
+   463→   463→    branch: "contoh-hujan",
+   464→   464→  },
+   465→   465→  {
+   466→   466→    id: "c-sunlight",
+   467→   467→    label: "Cahaya Matahari",
+   468→   468→    category: "astronomis",
+   469→   469→    timeLabel: "8 menit lalu (waktu tempuh cahaya)",
+   470→   470→    timeValue: UNIVERSE_AGE_SECONDS - 480,
+   471→   471→    description:
+   472→   472→      "Energi yang menguapkan air berasal dari cahaya Matahari yang menempuh jarak ~150 juta km dalam waktu sekitar 8 menit. Matahari memancarkan daya sekitar 3,8 × 10²⁶ watt, dan Bumi menerima sekitar satu per dua miliar dari total ini. Hanya sebagian kecil dari energi yang diterima Bumi yang menggerakkan siklus air — sebagian besar dipantulkan kembali atau diserap langsung sebagai panas.",
+   473→   473→    sources: ["NASA Sun Fact Sheet"],
+   474→   474→    branch: "contoh-hujan",
+   475→   475→  },
+   476→   476→  {
+   477→   477→    id: "c-fusion",
+   478→   478→    label: "Fusi Nuklir di Inti Matahari",
+   479→   479→    category: "astronomis",
+   480→   480→    timeLabel: "~100.000 tahun lalu (waktu tempuh foton)",
+   481→   481→    timeValue: UNIVERSE_AGE_SECONDS - 100_000 * 365.25 * 24 * 3600,
+   482→   482→    description:
+   483→   483→      "Energi Matahari dihasilkan oleh fusi nuklir di intinya, di mana empat inti hidrogen bergabung menjadi satu inti helium (melalui rantai proton-proton) dengan pelepasan energi sekitar 26,7 MeV per reaksi. Foton yang dihasilkan membutuhkan sekitar 100.000 tahun untuk merambat dari inti ke permukaan Matahari (karena banyaknya tumbukan dengan materi padat di plasma Matahari), lalu hanya 8 menit untuk mencapai Bumi. Matahari mengubah ~600 juta ton hidrogen menjadi helium setiap detik.",
+   484→   484→    sources: ["NASA Sun", "Stanford Solar Center"],
+   485→   485→    branch: "contoh-hujan",
+   486→   486→  },
+   487→   487→  {
+   488→   488→    id: "c-hydrogen-source",
+   489→   489→    label: "Hidrogen dari Nukleosintesis Big Bang",
+   490→   490→    category: "partikel",
+   491→   491→    timeLabel: "Menit ke-3 hingga ke-20 (setelah Big Bang)",
+   492→   492→    timeValue: 600,
+   493→   493→    description:
+   494→   494→      "Hidrogen yang difusikan di inti Matahari bukan dibuat oleh Matahari — ia sudah ada sejak menit-menit pertama alam semesta, terbentuk selama periode nukleosintesis Big Bang. Inilah titik di mana rantai kausal 'hujan' bersatu dengan rantai kosmologis utama. Atom hidrogen yang kini bergabung di inti Matahari telah berkelana selama 13,8 miliar tahun sebelum akhirnya menjadi bagian dari Bumi, lautan, dan tetesan hujan yang Anda lihat hari ini.",
+   495→   495→    sources: ["NASA Imagine the Universe", "Einstein-Online"],
+   496→   496→    branch: "contoh-hujan",
+   497→   497→  },
+   498→   498→
+   499→   499→  // ====================================================================
+   500→   500→  // BRANCH D: JALUR CONTOH BOLA BILIAR
+   501→   501→  // Bola bergerak → tumbukan → tongkat → tangan → niat → (neurologis)
+   502→   502→  // ====================================================================
+   503→   503→
+   504→   504→  {
+   505→   505→    id: "d-balls-moving",
+   506→   506→    label: "Bola-bola Bergerak",
+   507→   507→    category: "personal",
+   508→   508→    timeLabel: "Saat ini",
+   509→   509→    timeValue: UNIVERSE_AGE_SECONDS - 1,
+   510→   510→    description:
+   511→   511→      "Anda melihat bola-bola biliar berpencar di meja. Setiap bola bergerak menurut hukum Newton — kecepatan dan arahnya dapat dihitung dari keadaan sebelumnya. Tetapi gerakan ini tidak muncul dari ketiadaan. Ada tumbukan yang memicunya, dan tumbukan itu sendiri adalah akibat dari dorongan sebelumnya.",
+   512→   512→    sources: [],
+   513→   513→    branch: "contoh-biliar",
+   514→   514→  },
+   515→   515→  {
+   516→   516→    id: "d-cue-strike",
+   517→   517→    label: "Tumbukan Bola Putih",
+   518→   518→    category: "personal",
+   519→   519→    timeLabel: "0,5 detik lalu",
+   520→   520→    timeValue: UNIVERSE_AGE_SECONDS - 0.5,
+   521→   521→    description:
+   522→   522→      "Bola-bola yang berpencar tadi berawal dari tumbukan bola putih dengan bola lainnya. Saat tumbukan terjadi, momentum dan energi kinetik bola putih ditransfer ke bola sasaran (dengan beberapa rugi energi sebagai panas dan bunyi). Ini adalah contoh klasik dari hukum kekekalan momentum yang diajarkan di sekolah menengah.",
+   523→   523→    sources: [],
+   524→   524→    branch: "contoh-biliar",
+   525→   525→  },
+   526→   526→  {
+   527→   527→    id: "d-cue-stick",
+   528→   528→    label: "Dorongan Tongkat",
+   529→   529→    category: "personal",
+   530→   530→    timeLabel: "1 detik lalu",
+   531→   531→    timeValue: UNIVERSE_AGE_SECONDS - 1,
+   532→   532→    description:
+   533→   533→      "Bola putih bergerak karena didorong oleh tongkat biliar. Energi kinetik yang dibawa bola putih berasal dari energi kinetik tongkat, yang pada gilirannya berasal dari tangan pemain. Tongkat hanya sebagai perantara — ia tidak menghasilkan energi sendiri, hanya menyalurkannya dari tangan ke bola.",
+   534→   534→    sources: [],
+   535→   535→    branch: "contoh-biliar",
+   536→   536→  },
+   537→   537→  {
+   538→   538→    id: "d-arm-motion",
+   539→   539→    label: "Gerakan Tangan Pemain",
+   540→   540→    category: "biologis",
+   541→   541→    timeLabel: "1,5 detik lalu",
+   542→   542→    timeValue: UNIVERSE_AGE_SECONDS - 1.5,
+   543→   543→    description:
+   544→   544→      "Tangan yang mengayunkan tongkat bergerak karena kontraksi otot-otot lengan. Kontraksi otot dirangsang oleh sinyal listrik dari saraf, yang berasal dari sumsum tulang belakang dan otak. Energi mekanik gerakan tangan diperoleh dari pemecahan molekul ATP dalam sel otot — yang berasal dari makanan yang dimakan pemain.",
+   545→   545→    sources: [],
+   546→   546→    branch: "contoh-biliar",
+   547→   547→  },
+   548→   548→  {
+   549→   549→    id: "d-intention",
+   550→   550→    label: "Niat & Keputusan Otak",
+   551→   551→    category: "biologis",
+   552→   552→    timeLabel: "Beberapa detik lalu",
+   553→   553→    timeValue: UNIVERSE_AGE_SECONDS - 3,
+   554→   554→    description:
+   555→   555→      "Sinyal motorik ke otot lengan berasal dari korteks motorik otak, yang dipicu oleh keputusan sadar untuk memukul bola dengan cara tertentu. Keputusan ini sendiri adalah hasil dari aktivitas kompleks di jaringan saraf — memori, perhatian, perencanaan, dan interpretasi posisi bola. Di titik inilah contoh biliar mulai menyentuh pertanyaan filosofis yang lebih dalam: apakah keputusan sadar kita sendiri adalah sebab pertama, atau juga akibat dari rantai sebab-akibat sebelumnya (misalnya genetika, lingkungan, pengalaman)?",
+   556→   556→    sources: [],
+   557→   557→    branch: "contoh-biliar",
+   558→   558→  },
+   559→   559→  {
+   560→   560→    id: "d-physics",
+   561→   561→    label: "Hukum Fisika & Neurokimia",
+   562→   562→    category: "filosofis",
+   563→   563→    timeLabel: "Kondisi tetap dari alam",
+   564→   564→    timeValue: UNIVERSE_AGE_SECONDS - 100,
+   565→   565→    description:
+   566→   566→      "Pada akhirnya, keputusan otak dan kontraksi otot tunduk pada hukum-hukum fisika dan kimia yang sama yang berlaku di mana pun di alam semesta. Sinyal saraf adalah impuls elektrokimia; pemikiran melibatkan perubahan kimiawi di sinapsis. Inilah titik di mana rantai contoh biliar menimbulkan pertanyaan: jika setiap gerakan tubuh kita dapat ditelusuri kausal hingga ke hukum-hukum fisika yang sudah ada sejak awal alam semesta, di manakah letak 'sebab pertama' dari keputusan sadar? Pertanyaan ini membawa kita kembali ke isu yang sama yang diangkat oleh Kalam: adakah sebab yang tak-tersebabkan, baik di tingkat kosmis maupun di tingkat kesadaran?",
+   567→   567→    sources: [],
+   568→   568→    branch: "contoh-biliar",
+   569→   569→    isPhilosophical: true,
+   570→   570→  },
+   571→   571→];
+   572→   572→
+   573→   573→/**
+   574→   574→ * Statistik node (untuk verifikasi kriteria selesai):
+   575→   575→ * - Total: 32 node
+   576→   576→ * - Branch A (kosmologis-utama): 18 node
+   577→   577→ * - Branch B (silsilah-manusia): 6 node
+   578→   578→ * - Branch C (contoh-hujan): 6 node
+   579→   579→ * - Branch D (contoh-biliar): 6 node
+   580→   580→ *
+   581→   581→ * Kriteria "minimal 25 node" terpenuhi.
+   582→   582→ */
+   583→   583→
