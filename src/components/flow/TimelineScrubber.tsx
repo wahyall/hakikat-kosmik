@@ -21,6 +21,7 @@ import { useFlowStore } from "@/store/flow-store";
 import { chainNodes, UNIVERSE_AGE_SECONDS } from "@/data/chain-nodes";
 import { cn } from "@/lib/utils";
 import { X, Clock, Thermometer } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Rentang log10: dari -44 (Planck) hingga +18 (masa kini)
 const MIN_LOG = -44;
@@ -174,6 +175,7 @@ const GROUP_STYLES: Record<
   EraMarker["group"],
   {
     dotActive: string;
+    dotHover: string;
     chipText: string;
     cardBorder: string;
     legendColor: string;
@@ -181,24 +183,28 @@ const GROUP_STYLES: Record<
 > = {
   early: {
     dotActive: "bg-indigo-600 border-indigo-700 ring-4 ring-indigo-100",
+    dotHover: "bg-indigo-600 border-indigo-700 ring-4 ring-indigo-100 scale-125",
     chipText: "text-indigo-700",
     cardBorder: "border-indigo-300",
     legendColor: "bg-indigo-500",
   },
   particle: {
     dotActive: "bg-violet-600 border-violet-700 ring-4 ring-violet-100",
+    dotHover: "bg-violet-600 border-violet-700 ring-4 ring-violet-100 scale-125",
     chipText: "text-violet-700",
     cardBorder: "border-violet-300",
     legendColor: "bg-violet-500",
   },
   structure: {
     dotActive: "bg-amber-600 border-amber-700 ring-4 ring-amber-100",
+    dotHover: "bg-amber-600 border-amber-700 ring-4 ring-amber-100 scale-125",
     chipText: "text-amber-700",
     cardBorder: "border-amber-300",
     legendColor: "bg-amber-500",
   },
   present: {
     dotActive: "bg-emerald-600 border-emerald-700 ring-4 ring-emerald-100",
+    dotHover: "bg-emerald-600 border-emerald-700 ring-4 ring-emerald-100 scale-125",
     chipText: "text-emerald-700",
     cardBorder: "border-emerald-300",
     legendColor: "bg-emerald-500",
@@ -211,6 +217,7 @@ export function TimelineScrubber() {
   const setSelectedNode = useFlowStore((s) => s.setSelectedNode);
   const setFocusNode = useFlowStore((s) => s.setFocusNode);
   const setBranch = useFlowStore((s) => s.setBranch);
+  const isMobile = useIsMobile();
   const [hoveredState, setHoveredState] = useState<{
     marker: EraMarker;
     rect: DOMRect;
@@ -234,9 +241,9 @@ export function TimelineScrubber() {
 
   // Menghitung posisi visual titik (persentase) agar setiap marker memiliki jarak minimal
   const markerPositions = useMemo(() => {
-    const minGap = 5.8; // persentase minimum antar marker (mencegah tumpang tindih label & dot)
-    const maxAllowed = 97.5;
-    const minAllowed = 2.5;
+    const minGap = isMobile ? 8 : 4.5; // persentase minimum antar marker (9.5% mobile, 4.5% desktop)
+    const maxAllowed = 99;
+    const minAllowed = 1;
 
     const rawPos = ERA_MARKERS.map((m) => logScale(m.timeValue));
     const pos = [...rawPos];
@@ -269,7 +276,7 @@ export function TimelineScrubber() {
     }
 
     return pos;
-  }, []);
+  }, [isMobile]);
 
   const handleTickClick = (m: EraMarker) => {
     const node = chainNodes.find((n) => n.id === m.nodeId);
@@ -311,16 +318,31 @@ export function TimelineScrubber() {
             </h4>
             {hoveredMarker ? (
               <p className="text-[10px] sm:text-[11px] text-slate-700 leading-tight flex items-center gap-1.5 font-medium">
-                <span className={cn("font-bold", GROUP_STYLES[hoveredMarker.group].chipText)}>
+                <span
+                  className={cn(
+                    "font-bold",
+                    GROUP_STYLES[hoveredMarker.group].chipText,
+                  )}
+                >
                   {hoveredMarker.eraName}
                 </span>
-                <span className="text-slate-400 font-normal">({hoveredMarker.timeDisplay})</span>
-                <span className="text-slate-500 font-normal hidden sm:inline">— {hoveredMarker.description}</span>
+                <span className="text-slate-400 font-normal">
+                  ({hoveredMarker.timeDisplay})
+                </span>
+                <span className="text-slate-500 font-normal hidden sm:inline">
+                  — {hoveredMarker.description}
+                </span>
               </p>
             ) : (
               <p className="text-[10px] sm:text-[11px] text-slate-500 leading-tight">
-                <span className="font-mono font-semibold text-slate-700">10⁻⁴³ s</span> (Planck) →{" "}
-                <span className="font-mono font-semibold text-slate-700">13,8 M th</span> (Kini) · skala log · hover untuk detail
+                <span className="font-mono font-semibold text-slate-700">
+                  10⁻⁴³ s
+                </span>{" "}
+                (Planck) →{" "}
+                <span className="font-mono font-semibold text-slate-700">
+                  13,8 M th
+                </span>{" "}
+                (Kini) · skala log · hover untuk detail
               </p>
             )}
           </div>
@@ -330,8 +352,15 @@ export function TimelineScrubber() {
           <div className="hidden md:flex items-center gap-2.5">
             {groupLegend.map((g) => (
               <div key={g.group} className="flex items-center gap-1.5">
-                <span className={cn("w-2 h-2 rounded-full", GROUP_STYLES[g.group].legendColor)} />
-                <span className="text-[10px] text-slate-500 font-medium">{g.label}</span>
+                <span
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    GROUP_STYLES[g.group].legendColor,
+                  )}
+                />
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {g.label}
+                </span>
               </div>
             ))}
           </div>
@@ -351,10 +380,15 @@ export function TimelineScrubber() {
 
       {/* ============ TIMELINE TRACK ============ */}
       <div className="relative px-4 sm:px-5 py-2">
-        <div className="relative overflow-hidden pb-1">
-          <div className="relative min-w-[760px] h-[64px]">
+        {/* Mobile: horizontally scrollable; Desktop: no overflow */}
+        <div className="overflow-x-auto sm:overflow-hidden pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
+          {/* Mobile: 960px wide to avoid label overlap; Desktop: stretch to container */}
+          <div className="relative min-w-[960px] sm:min-w-0" style={{ height: "72px" }}>
             {/* Garis utama timeline */}
-            <div className="absolute left-0 right-0 h-px bg-slate-300" style={{ top: "14px" }} />
+            <div
+              className="absolute left-0 right-0 h-px bg-slate-300"
+              style={{ top: "14px" }}
+            />
 
             {/* Minor ticks (setiap orde-of-magnitude) */}
             {Array.from({ length: 63 }, (_, i) => -44 + i).map((log) => {
@@ -369,7 +403,9 @@ export function TimelineScrubber() {
                     top: isMajor ? "10px" : "12px",
                     height: isMajor ? "8px" : "4px",
                     width: "1px",
-                    background: isMajor ? "rgb(148 163 184)" : "rgb(203 213 225)",
+                    background: isMajor
+                      ? "rgb(148 163 184)"
+                      : "rgb(203 213 225)",
                   }}
                 />
               );
@@ -408,10 +444,14 @@ export function TimelineScrubber() {
                         isActiveTick
                           ? styles.dotActive
                           : isHovered
-                            ? "bg-slate-700 border-slate-900 scale-125"
+                            ? styles.dotHover
                             : "bg-white border-slate-400",
                       )}
-                      style={{ width: "12px", height: "12px", marginTop: "8px" }}
+                      style={{
+                        width: "12px",
+                        height: "12px",
+                        marginTop: "8px",
+                      }}
                     />
                     {/* Label singkat di bawah */}
                     <span
@@ -420,7 +460,7 @@ export function TimelineScrubber() {
                         isActiveTick
                           ? styles.chipText
                           : isHovered
-                            ? "text-slate-900 font-bold scale-105"
+                            ? cn(styles.chipText, "font-bold scale-105")
                             : "text-slate-600",
                       )}
                     >
@@ -434,74 +474,88 @@ export function TimelineScrubber() {
               );
             })}
           </div>
-        </div>
 
-        {/* ============ ENDPOINT LABELS ============ */}
-        <div className="flex justify-between items-center mt-1 pt-1 border-t border-slate-100 text-[10px] text-slate-500 font-mono min-w-[760px]">
-          <span>← Big Bang (t = 0)</span>
-          <span className="hidden sm:inline text-slate-400">log₁₀(detik): −44 ←→ +18</span>
-          <span>Masa Kini (t = 13,8 M th) →</span>
+          {/* ============ ENDPOINT LABELS (inside scroll container) ============ */}
+          {/* Mobile: matches 960px track width; Desktop: auto */}
+          <div className="flex justify-between items-center mt-1 pt-1 border-t border-slate-100 text-[10px] text-slate-500 font-mono min-w-[960px] sm:min-w-0">
+            <span>← Big Bang (t = 0)</span>
+            <span className="hidden sm:inline text-slate-400">
+              log₁₀(detik): −44 ←→ +18
+            </span>
+            <span>Masa Kini (t = 13,8 M th) →</span>
+          </div>
         </div>
       </div>
 
       {/* ============ FIXED FLOATING TOOLTIP CARD ============ */}
-      {hoveredState && (() => {
-        const m = hoveredState.marker;
-        const styles = GROUP_STYLES[m.group];
-        const cardWidth = 220;
-        const halfCard = cardWidth / 2;
-        const markerCenterX = hoveredState.rect.left + hoveredState.rect.width / 2;
-        const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1000;
-        
-        // Clamp center X so tooltip never clips outside screen
-        const clampedCenterX = Math.min(Math.max(markerCenterX, halfCard + 12), viewportWidth - halfCard - 12);
-        const arrowOffsetX = markerCenterX - clampedCenterX;
+      {hoveredState &&
+        (() => {
+          const m = hoveredState.marker;
+          const styles = GROUP_STYLES[m.group];
+          const cardWidth = 220;
+          const halfCard = cardWidth / 2;
+          const markerCenterX =
+            hoveredState.rect.left + hoveredState.rect.width / 2;
+          const viewportWidth =
+            typeof window !== "undefined" ? window.innerWidth : 1000;
 
-        return (
-          <div
-            className={cn(
-              "fixed z-50 w-[220px] bg-white rounded-lg border-2 shadow-2xl px-3 py-2.5 text-left pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95",
-              styles.cardBorder
-            )}
-            style={{
-              left: `${clampedCenterX}px`,
-              top: `${hoveredState.rect.top - 8}px`,
-              transform: "translate(-50%, -100%)",
-            }}
-          >
-            {/* Panah Penunjuk (Arrow) */}
+          // Clamp center X so tooltip never clips outside screen
+          const clampedCenterX = Math.min(
+            Math.max(markerCenterX, halfCard + 12),
+            viewportWidth - halfCard - 12,
+          );
+          const arrowOffsetX = markerCenterX - clampedCenterX;
+
+          return (
             <div
               className={cn(
-                "absolute w-2.5 h-2.5 bg-white border-r-2 border-b-2",
-                styles.cardBorder
+                "fixed z-50 w-[220px] bg-white rounded-lg border-2 shadow-2xl px-3 py-2.5 text-left pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95",
+                styles.cardBorder,
               )}
               style={{
-                bottom: "-6px",
-                left: `calc(50% + ${arrowOffsetX}px)`,
-                transform: "translateX(-50%) rotate(45deg)",
+                left: `${clampedCenterX}px`,
+                top: `${hoveredState.rect.top - 8}px`,
+                transform: "translate(-50%, -100%)",
               }}
-            />
-            <h5 className={cn("text-[12px] font-bold leading-tight mb-1.5", styles.chipText)}>
-              {m.eraName}
-            </h5>
-            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="font-mono text-[10px] font-semibold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded">
-                {m.timeDisplay}
-              </span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] text-orange-600 font-medium">
-                <Thermometer className="w-3 h-3" />
-                {m.temperature}
-              </span>
+            >
+              {/* Panah Penunjuk (Arrow) */}
+              <div
+                className={cn(
+                  "absolute w-2.5 h-2.5 bg-white border-r-2 border-b-2",
+                  styles.cardBorder,
+                )}
+                style={{
+                  bottom: "-6px",
+                  left: `calc(50% + ${arrowOffsetX}px)`,
+                  transform: "translateX(-50%) rotate(45deg)",
+                }}
+              />
+              <h5
+                className={cn(
+                  "text-[12px] font-bold leading-tight mb-1.5",
+                  styles.chipText,
+                )}
+              >
+                {m.eraName}
+              </h5>
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="font-mono text-[10px] font-semibold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded">
+                  {m.timeDisplay}
+                </span>
+                <span className="inline-flex items-center gap-0.5 text-[10px] text-orange-600 font-medium">
+                  <Thermometer className="w-3 h-3" />
+                  {m.temperature}
+                </span>
+              </div>
+              <p className="text-[10px] leading-snug text-slate-600">
+                {m.description}
+              </p>
+              <p className="mt-1.5 text-[9px] text-slate-400 italic">
+                Klik untuk lompat ke node era ini →
+              </p>
             </div>
-            <p className="text-[10px] leading-snug text-slate-600">
-              {m.description}
-            </p>
-            <p className="mt-1.5 text-[9px] text-slate-400 italic">
-              Klik untuk lompat ke node era ini →
-            </p>
-          </div>
-        );
-      })()}
+          );
+        })()}
     </div>
   );
 }

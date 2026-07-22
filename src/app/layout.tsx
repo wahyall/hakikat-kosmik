@@ -14,25 +14,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Rantai Sebab-Akibat — Cosmological Chain Explorer",
+  description:
+    "Telusuri rantai kausal dari masa kini hingga Sebab Pertama dalam kerangka falsafi Islam (Al-Kindi, Ibnu Sina, Al-Ghazali).",
+  keywords: [
+    "kosmologi",
+    "falsafi Islam",
+    "Wajib al-Wujud",
+    "Al-Kindi",
+    "Ibnu Sina",
+    "Al-Ghazali",
+    "Kalam",
+    "sebab akibat",
+  ],
+  authors: [{ name: "Wahyal" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.svg",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "Rantai Sebab-Akibat — Cosmological Chain Explorer",
+    description: "Telusuri rantai kausal dari masa kini ke Sebab Pertama.",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -41,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >

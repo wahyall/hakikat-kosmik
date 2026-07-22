@@ -340,8 +340,13 @@ function FlowInner() {
       minZoom={0.1}
       maxZoom={2.5}
       proOptions={{ hideAttribution: true }}
+      // Mobile touch support
+      panOnDrag={[0, 1, 2]}
+      panOnScroll={false}
+      zoomOnPinch={true}
+      preventScrolling={true}
       className="bg-muted/10 w-full h-full"
-      style={{ width: "100%", height: "100%" }}
+      style={{ width: "100%", height: "100%", touchAction: "none" }}
     >
       <Background
         gap={20}
@@ -373,8 +378,8 @@ function FlowInner() {
         }}
       /> */}
 
-      {/* Legend overlay */}
-      <Panel position="top-left" className="!m-2">
+      {/* Legend overlay — hidden on mobile to save canvas space */}
+      <Panel position="top-left" className="!m-2 hidden sm:block">
         <div className="bg-background/95 backdrop-blur border rounded-md p-2 shadow-sm max-w-[180px]">
           <h4 className="text-[10px] font-semibold uppercase tracking-wide mb-1.5">
             Kategori

@@ -21,7 +21,7 @@
  * - ArgumentOverlay (kiri, default ON) & 6 panel overlay lainnya
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChainFlowCanvas } from "@/components/flow/ChainFlowCanvas";
 import { DetailPanel } from "@/components/flow/DetailPanel";
 import { TimelineScrubber } from "@/components/flow/TimelineScrubber";
@@ -55,6 +55,8 @@ import {
   Square,
   BookMarked,
   SlidersHorizontal,
+  MoreHorizontal,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -402,14 +404,15 @@ function IntroView({ onExplore }: { onExplore: () => void }) {
         </div>
       </main>
 
+      {/* Footer — wraps on mobile */}
       <footer className="border-t mt-auto">
-        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
+        <div className="max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="leading-relaxed">
             Dibangun dengan Next.js, React Flow v12, dagre, Zustand, Tailwind
             CSS, shadcn/ui, dan html-to-image. Kerangka falsafi: Al-Kindi · Ibnu
             Sina · Al-Ghazali.
           </span>
-          <Github className="w-4 h-4" />
+          <Github className="w-4 h-4 flex-shrink-0" />
         </div>
       </footer>
     </>
@@ -436,22 +439,54 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
   const startTraversal = useFlowStore((s) => s.startTraversal);
   const stopTraversal = useFlowStore((s) => s.stopTraversal);
 
+  // Mobile "More" dropdown
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [mobileMenuOpen]);
+
   const toolbarBtn = (
     mode: typeof panelMode,
     icon: React.ReactNode,
     label: string,
   ) => ({
     active: panelMode === mode,
-    onClick: () => setPanelMode(mode),
+    onClick: () => {
+      setPanelMode(mode);
+      setMobileMenuOpen(false);
+    },
     icon,
     label,
   });
+
+  const featureBtns = [
+    toolbarBtn("tour", <MapPin className="w-3.5 h-3.5" />, "Tur Berpandu"),
+    toolbarBtn("quran", <BookOpen className="w-3.5 h-3.5" />, "Rujukan Qur'an"),
+    toolbarBtn("reflection", <Brain className="w-3.5 h-3.5" />, "Mode Refleksi"),
+    toolbarBtn("bookmarks", <Bookmark className="w-3.5 h-3.5" />, "Penanda"),
+    toolbarBtn("export", <Share2 className="w-3.5 h-3.5" />, "Ekspor"),
+    toolbarBtn("glossary", <BookMarked className="w-3.5 h-3.5" />, "Kamus Istilah"),
+    toolbarBtn("finetuning", <SlidersHorizontal className="w-3.5 h-3.5" />, "What If?"),
+  ];
+
+  const hasActiveFeature = featureBtns.some((b) => b.active);
 
   return (
     <div className="flex flex-col h-screen">
       {/* Toolbar atas */}
       <header className="border-b bg-background flex-shrink-0">
-        <div className="px-3 py-2 flex items-center gap-2 flex-wrap">
+        <div className="px-3 py-2 flex items-center gap-2">
+          {/* Back */}
           <Button
             variant="ghost"
             size="sm"
@@ -461,24 +496,25 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Beranda</span>
           </Button>
-          <div className="text-sm font-semibold hidden md:block">
+
+          <div className="text-sm font-semibold hidden md:block flex-shrink-0">
             Rantai Sebab-Akibat
           </div>
 
-          <div className="flex-1" />
+          <div className="flex-1 min-w-0" />
 
-          {/* Search */}
-          <div className="relative">
+          {/* Search — shrinks on mobile */}
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari node..."
-              className="pl-7 h-8 w-40 sm:w-56 text-xs"
+              className="pl-7 h-8 w-28 sm:w-44 md:w-56 text-xs"
             />
           </div>
 
-          {/* Animasi Telusur (mode presentasi) */}
+          {/* Animasi Telusur — icon-only on mobile */}
           <button
             onClick={() =>
               traversalActive ? stopTraversal() : startTraversal()
@@ -489,7 +525,7 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
                 : "Mulai Animasi Telusur (mode presentasi)"
             }
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-[11px] font-medium transition-colors",
+              "flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-[11px] font-medium transition-colors",
               traversalActive
                 ? "bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600 animate-pulse"
                 : "bg-background hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300",
@@ -503,94 +539,148 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
             ) : (
               <>
                 <Play className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Animasi Telusur</span>
+                <span className="hidden sm:inline">Telusur</span>
               </>
             )}
           </button>
 
-          {/* Toggle: Mode Argumen (DEFAULT ON) */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-background">
-            <ScrollText
-              className={cn(
-                "w-3.5 h-3.5",
-                showArgumentOverlay
-                  ? "text-emerald-600"
-                  : "text-muted-foreground",
-              )}
-            />
-            <span className="text-[11px] hidden sm:inline">Argumen Islam</span>
-            <Switch
-              checked={showArgumentOverlay}
-              onCheckedChange={toggleArgumentOverlay}
-              className="scale-75"
-            />
+          {/* ── Desktop: toggles + feature buttons (≥ sm) ── */}
+          <div className="hidden sm:flex items-center gap-2 flex-wrap justify-end">
+            {/* Toggle: Mode Argumen */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-background">
+              <ScrollText
+                className={cn(
+                  "w-3.5 h-3.5",
+                  showArgumentOverlay ? "text-emerald-600" : "text-muted-foreground",
+                )}
+              />
+              <span className="text-[11px] hidden md:inline">Argumen Islam</span>
+              <Switch
+                checked={showArgumentOverlay}
+                onCheckedChange={toggleArgumentOverlay}
+                className="scale-75"
+              />
+            </div>
+
+            {/* Toggle: Perspektif Lain */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-background">
+              <Compass
+                className={cn(
+                  "w-3.5 h-3.5",
+                  showPerspectivePanel ? "text-cyan-600" : "text-muted-foreground",
+                )}
+              />
+              <span className="text-[11px] hidden md:inline">Perspektif</span>
+              <Switch
+                checked={showPerspectivePanel}
+                onCheckedChange={togglePerspectivePanel}
+                className="scale-75"
+              />
+            </div>
+
+            {/* Feature buttons — icon-only on sm, text on lg */}
+            {featureBtns.map((b, i) => (
+              <button
+                key={i}
+                onClick={b.onClick}
+                title={b.label}
+                className={cn(
+                  "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-[11px] transition-colors",
+                  b.active
+                    ? "bg-foreground text-background border-foreground"
+                    : "bg-background hover:bg-muted border-border text-foreground/80",
+                )}
+              >
+                {b.icon}
+                <span className="hidden lg:inline">{b.label}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Toggle: Perspektif Lain (DEFAULT OFF) */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-background">
-            <Compass
-              className={cn(
-                "w-3.5 h-3.5",
-                showPerspectivePanel
-                  ? "text-cyan-600"
-                  : "text-muted-foreground",
-              )}
-            />
-            <span className="text-[11px] hidden sm:inline">
-              Perspektif Lain
-            </span>
-            <Switch
-              checked={showPerspectivePanel}
-              onCheckedChange={togglePerspectivePanel}
-              className="scale-75"
-            />
-          </div>
-
-          {/* 7 Fitur Iterasi (icon buttons, mutually exclusive) */}
-          {[
-            toolbarBtn("tour", <MapPin className="w-3.5 h-3.5" />, "Tur"),
-            toolbarBtn("quran", <BookOpen className="w-3.5 h-3.5" />, "Qur'an"),
-            toolbarBtn(
-              "reflection",
-              <Brain className="w-3.5 h-3.5" />,
-              "Refleksi",
-            ),
-            toolbarBtn(
-              "bookmarks",
-              <Bookmark className="w-3.5 h-3.5" />,
-              "Tanda",
-            ),
-            toolbarBtn("export", <Share2 className="w-3.5 h-3.5" />, "Ekspor"),
-            toolbarBtn(
-              "glossary",
-              <BookMarked className="w-3.5 h-3.5" />,
-              "Kamus",
-            ),
-            toolbarBtn(
-              "finetuning",
-              <SlidersHorizontal className="w-3.5 h-3.5" />,
-              "What If?",
-            ),
-          ].map((b, i) => (
+          {/* ── Mobile: "More" dropdown (< sm) ── */}
+          <div className="sm:hidden relative flex-shrink-0" ref={menuRef}>
             <button
-              key={i}
-              onClick={b.onClick}
-              title={b.label}
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              title="Fitur lainnya"
               className={cn(
-                "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-[11px] transition-colors",
-                b.active
+                "flex items-center gap-1 px-2 py-1.5 rounded-md border text-[11px] transition-colors",
+                mobileMenuOpen || hasActiveFeature || showArgumentOverlay || showPerspectivePanel
                   ? "bg-foreground text-background border-foreground"
                   : "bg-background hover:bg-muted border-border text-foreground/80",
               )}
             >
-              {b.icon}
-              <span className="hidden lg:inline">{b.label}</span>
+              {mobileMenuOpen
+                ? <X className="w-3.5 h-3.5" />
+                : <MoreHorizontal className="w-3.5 h-3.5" />}
             </button>
-          ))}
+
+            {mobileMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-64 bg-background border border-border rounded-lg shadow-xl p-3 space-y-3">
+                {/* Toggles section */}
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Tampilkan</p>
+                  <button
+                    onClick={() => { toggleArgumentOverlay(); setMobileMenuOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-md border text-xs transition-colors",
+                      showArgumentOverlay
+                        ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                        : "bg-background border-border text-foreground/80",
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <ScrollText className="w-3.5 h-3.5" />
+                      Argumen Islam
+                    </span>
+                    <Switch checked={showArgumentOverlay} onCheckedChange={() => { toggleArgumentOverlay(); setMobileMenuOpen(false); }} className="scale-75 pointer-events-none" />
+                  </button>
+                  <button
+                    onClick={() => { togglePerspectivePanel(); setMobileMenuOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-md border text-xs transition-colors",
+                      showPerspectivePanel
+                        ? "bg-cyan-50 border-cyan-300 text-cyan-800"
+                        : "bg-background border-border text-foreground/80",
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Compass className="w-3.5 h-3.5" />
+                      Perspektif Lain
+                    </span>
+                    <Switch checked={showPerspectivePanel} onCheckedChange={() => { togglePerspectivePanel(); setMobileMenuOpen(false); }} className="scale-75 pointer-events-none" />
+                  </button>
+                </div>
+
+                <div className="border-t" />
+
+                {/* Feature buttons grid */}
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Fitur</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {featureBtns.map((b, i) => (
+                      <button
+                        key={i}
+                        onClick={b.onClick}
+                        className={cn(
+                          "flex items-center text-left gap-2 px-2.5 py-2 rounded-md border text-xs transition-colors",
+                          b.active
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background hover:bg-muted border-border text-foreground/80",
+                        )}
+                      >
+                        {b.icon}
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Branch switcher */}
-        <div className="px-3 pb-2">
+        {/* Branch switcher — horizontally scrollable on mobile */}
+        <div className="px-3 pb-2 overflow-x-auto">
           <BranchSwitcher />
         </div>
       </header>
@@ -624,7 +714,7 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      {/* Mobile detail: bottom sheet alternative */}
+      {/* Mobile detail: bottom sheet */}
       <MobileDetailDrawer />
     </div>
   );
@@ -641,13 +731,15 @@ function MobileDetailDrawer() {
   if (!selectedNodeId) return null;
 
   return (
-    <div className="md:hidden fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto bg-background border-t shadow-2xl">
-      <div className="sticky top-0 bg-background border-b p-2 flex justify-end">
-        <Button size="sm" variant="ghost" onClick={() => setSelectedNode(null)}>
-          Tutup
-        </Button>
+    <div className="md:hidden fixed inset-x-0 bottom-0 z-40 max-h-[66.5vh] flex flex-col bg-background border-t shadow-2xl rounded-t-xl">
+      {/* Drag handle visual */}
+      <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
+        <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
       </div>
-      <DetailPanel />
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <DetailPanel />
+      </div>
     </div>
   );
 }

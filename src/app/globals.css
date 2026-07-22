@@ -138,3 +138,17 @@
 .animate-traverse-pulse {
   animation: traverse-pulse 1s ease-in-out infinite;
 }
+
+/* ====================================================================
+   Mobile responsiveness helpers
+   ==================================================================== */
+
+/* Prevent pull-to-refresh from interfering with canvas pan */
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Mobile drawer: prevent scroll chaining */
+.mobile-drawer-content {
+  overscroll-behavior: contain;
+}
