@@ -34,7 +34,12 @@ const coreChainEdges: ChainEdge[] = [
   // ====================================================================
 
   { id: "e-a-now-to-homo", source: "a-now", target: "a-homo-sapiens", causalLabel: "diwarnai oleh kemunculan", branch: "kosmologis-utama" },
-  { id: "e-a-homo-to-abiogenesis", source: "a-homo-sapiens", target: "a-abiogenesis", causalLabel: "evolusioner dari", branch: "kosmologis-utama" },
+  { id: "e-a-homo-to-kpg", source: "a-homo-sapiens", target: "a-kpg-extinction", causalLabel: "radiasi mamalianya dimungkinkan oleh", branch: "kosmologis-utama" },
+  { id: "e-a-kpg-to-tetrapod", source: "a-kpg-extinction", target: "a-tetrapod-transition", causalLabel: "garis vertebrata daratnya berasal dari", branch: "kosmologis-utama" },
+  { id: "e-a-tetrapod-to-cambrian", source: "a-tetrapod-transition", target: "a-cambrian-explosion", causalLabel: "leluhur chordatanya muncul saat", branch: "kosmologis-utama" },
+  { id: "e-a-cambrian-to-eukaryo", source: "a-cambrian-explosion", target: "a-eukaryogenesis", causalLabel: "tubuh multiselulernya membutuhkan", branch: "kosmologis-utama" },
+  { id: "e-a-eukaryo-to-goe", source: "a-eukaryogenesis", target: "a-goe-oxygenation", causalLabel: "endosimbiosis aerobiknya dimungkinkan oleh", branch: "kosmologis-utama" },
+  { id: "e-a-goe-to-abiogenesis", source: "a-goe-oxygenation", target: "a-abiogenesis", causalLabel: "sianobakterinya berevolusi dari", branch: "kosmologis-utama" },
   { id: "e-a-abiogenesis-to-earth", source: "a-abiogenesis", target: "a-earth-formation", causalLabel: "terjadi di", branch: "kosmologis-utama" },
   { id: "e-a-earth-to-solar", source: "a-earth-formation", target: "a-solar-system", causalLabel: "terbentuk dari", branch: "kosmologis-utama" },
   { id: "e-a-solar-to-galaxies", source: "a-solar-system", target: "a-first-galaxies", causalLabel: "unsur beratnya berasal dari", branch: "kosmologis-utama" },
