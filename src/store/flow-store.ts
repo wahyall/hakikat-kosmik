@@ -58,6 +58,7 @@ interface FlowState {
   simValues: Record<ConstantId, number>;
   showCorrelations: boolean;
   selectedCorrelationId: string | null;
+  activeScenarioId: string | null;
   // Actions
   setBranch: (b: ActiveBranch) => void;
   setSearchQuery: (q: string) => void;
@@ -77,6 +78,7 @@ interface FlowState {
   setSimValue: (id: ConstantId, v: number) => void;
   resetSim: () => void;
   toggleCorrelations: () => void;
+  setActiveScenario: (id: string | null) => void;
 }
 
 export const useFlowStore = create<FlowState>((set) => ({
@@ -106,6 +108,7 @@ export const useFlowStore = create<FlowState>((set) => ({
   simValues: nominalValues(),
   showCorrelations: false,
   selectedCorrelationId: null,
+  activeScenarioId: null,
 
   setBranch: (b) =>
     set({ activeBranch: b, selectedNodeId: null, selectedCorrelationId: null, timelineTimeValue: null }),
@@ -157,4 +160,5 @@ export const useFlowStore = create<FlowState>((set) => ({
   resetSim: () => set({ simValues: nominalValues() }),
   toggleCorrelations: () =>
     set((s) => ({ showCorrelations: !s.showCorrelations, selectedCorrelationId: null })),
+  setActiveScenario: (id) => set({ activeScenarioId: id }),
 }));
