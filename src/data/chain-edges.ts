@@ -17,6 +17,7 @@
 
 import type { Edge } from "@xyflow/react";
 import { determinismEdges } from "./determinism-nodes";
+import { civilizationEdges } from "./civilization-nodes";
 // Re-export agar konsisten dengan chain-nodes.ts
 export type { Edge };
 
@@ -24,7 +25,7 @@ export interface ChainEdge extends Edge {
   /** label jenis relasi kausal */
   causalLabel?: string;
   /** branch edge ini (untuk filter) */
-  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "determinisme-ketetapan" | "all";
+  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "determinisme-ketetapan" | "sejarah-peradaban" | "all";
 }
 
 const coreChainEdges: ChainEdge[] = [
@@ -34,7 +35,12 @@ const coreChainEdges: ChainEdge[] = [
   // ====================================================================
 
   { id: "e-a-now-to-homo", source: "a-now", target: "a-homo-sapiens", causalLabel: "diwarnai oleh kemunculan", branch: "kosmologis-utama" },
-  { id: "e-a-homo-to-abiogenesis", source: "a-homo-sapiens", target: "a-abiogenesis", causalLabel: "evolusioner dari", branch: "kosmologis-utama" },
+  { id: "e-a-homo-to-kpg", source: "a-homo-sapiens", target: "a-kpg-extinction", causalLabel: "radiasi mamalianya dimungkinkan oleh", branch: "kosmologis-utama" },
+  { id: "e-a-kpg-to-tetrapod", source: "a-kpg-extinction", target: "a-tetrapod-transition", causalLabel: "garis vertebrata daratnya berasal dari", branch: "kosmologis-utama" },
+  { id: "e-a-tetrapod-to-cambrian", source: "a-tetrapod-transition", target: "a-cambrian-explosion", causalLabel: "leluhur chordatanya muncul saat", branch: "kosmologis-utama" },
+  { id: "e-a-cambrian-to-eukaryo", source: "a-cambrian-explosion", target: "a-eukaryogenesis", causalLabel: "tubuh multiselulernya membutuhkan", branch: "kosmologis-utama" },
+  { id: "e-a-eukaryo-to-goe", source: "a-eukaryogenesis", target: "a-goe-oxygenation", causalLabel: "endosimbiosis aerobiknya dimungkinkan oleh", branch: "kosmologis-utama" },
+  { id: "e-a-goe-to-abiogenesis", source: "a-goe-oxygenation", target: "a-abiogenesis", causalLabel: "sianobakterinya berevolusi dari", branch: "kosmologis-utama" },
   { id: "e-a-abiogenesis-to-earth", source: "a-abiogenesis", target: "a-earth-formation", causalLabel: "terjadi di", branch: "kosmologis-utama" },
   { id: "e-a-earth-to-solar", source: "a-earth-formation", target: "a-solar-system", causalLabel: "terbentuk dari", branch: "kosmologis-utama" },
   { id: "e-a-solar-to-galaxies", source: "a-solar-system", target: "a-first-galaxies", causalLabel: "unsur beratnya berasal dari", branch: "kosmologis-utama" },
@@ -96,15 +102,18 @@ const coreChainEdges: ChainEdge[] = [
   { id: "e-d-intention-to-physics", source: "d-intention", target: "d-physics", causalLabel: "tunduk pada", branch: "contoh-biliar" },
 ];
 
-export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges];
+export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges, ...civilizationEdges];
 
 /**
  * Statistik edge:
- * - Total: 43 edge
- * - Branch A: 26 edge (membentang dari masa kini ke 3 node terminal filosofis paralel
- *   + 1 node muara konvergen; dengan sub-node Hadron 2, Inflasi 3, GUT 2)
- * - Branch B: 7 edge (silsilah + node Maklumat Asabiqah + 1 cross-branch ke a-homo-sapiens)
- * - Branch C: 6 edge (hujan + 1 cross-branch ke a-nucleosynthesis)
- * - Branch D: 5 edge (self-contained)
- * - Branch E (determinisme-ketetapan): 7 edge (self-contained)
+ * - Total: 73 edge (branch tag: kosmologis-utama 31, silsilah-manusia 6,
+ *   contoh-hujan 5, contoh-biliar 5, determinisme-ketetapan 19,
+ *   sejarah-peradaban 4, "all" cross-branch 3)
+ * - Branch A (kosmologis-utama): 31 edge (termasuk 6 edge rantai biologis baru
+ *   K-Pg → tetrapoda → Kambrium → eukariogenesis → GOE → abiogenesis)
+ * - Branch B (silsilah-manusia): 6 edge + 1 cross-branch ("all") ke a-homo-sapiens
+ * - Branch C (contoh-hujan): 5 edge + 1 cross-branch ("all") ke a-nucleosynthesis
+ * - Branch D (contoh-biliar): 5 edge (self-contained)
+ * - Branch E (determinisme-ketetapan): 19 edge (via spread dari determinism-nodes.ts)
+ * - Branch F (sejarah-peradaban): 4 edge + 1 cross-branch ("all") ke a-homo-sapiens
  */

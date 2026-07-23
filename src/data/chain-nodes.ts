@@ -30,6 +30,7 @@
  */
 
 import { determinismNodes } from "./determinism-nodes";
+import { civilizationNodes } from "./civilization-nodes";
 
 export type ChainCategory =
   | "personal"
@@ -44,7 +45,8 @@ export type ChainBranch =
   | "kosmologis-utama"
   | "contoh-hujan"
   | "contoh-biliar"
-  | "determinisme-ketetapan";
+  | "determinisme-ketetapan"
+  | "sejarah-peradaban";
 
 export interface QuranReference {
   /** Contoh: "Al-Baqarah:117" */
@@ -119,6 +121,68 @@ const coreChainNodes: ChainNode[] = [
     description:
       "Fosil tertua yang diklasifikasikan sebagai Homo sapiens ditemukan di gua Jebel Irhoud, Maroko, dan diberi tanggal sekitar 300.000 tahun lalu. Temuan 2017 ini menggeser perkiraan sebelumnya (~200.000 tahun) dan menunjukkan bahwa ciri-ciri wajah modern telah muncul lebih awal dari yang sebelumnya diyakini. Otak mereka sudah memiliki kapasitas kognitif yang pada akhirnya memungkinkan refleksi filosofis tentang asal-usul — termasuk pertanyaan yang sedang Anda eksplorasi sekarang.",
     sources: ["Nature (Hublin et al. 2017)", "Smithsonian Human Origins", "Science AAAS"],
+    branch: "kosmologis-utama",
+  },
+  {
+    id: "a-kpg-extinction",
+    label: "Kepunahan Massal K-Pg (Chicxulub)",
+    category: "biologis",
+    timeLabel: "~66 juta tahun lalu",
+    timeValue: UNIVERSE_AGE_SECONDS - 66e6 * 365.25 * 24 * 3600,
+    description:
+      "Tumbukan asteroid Chicxulub (~66 juta tahun lalu) memicu kepunahan massal Kapur–Paleogen yang memusnahkan dinosaurus non-avian. Kosongnya relung ekologis tubuh-besar membuka radiasi mamalia besar — termasuk garis yang akhirnya menuju primata dan manusia. Tumbukan sebagai penyebab utama kini konsensus kuat; klaim 'tanpa peristiwa ini tidak akan ada manusia' bersifat interpretatif (kontingensi) dan masih diperdebatkan.",
+    sources: ["Alvarez et al. (1980)", "Schulte et al. (2010)", "Hull et al. (2020)"],
+    branch: "kosmologis-utama",
+  },
+  {
+    id: "a-tetrapod-transition",
+    label: "Transisi Ikan ke Tetrapoda",
+    category: "biologis",
+    timeLabel: "~375 juta tahun lalu",
+    timeValue: UNIVERSE_AGE_SECONDS - 375e6 * 365.25 * 24 * 3600,
+    description:
+      "Pada Devon Akhir, ikan bersirip-cuping (sarcopterygii) mengembangkan anggota badan berjari, paru-paru, dan leher — fosil peralihan seperti Tiktaalik merekamnya. Kolonisasi daratan oleh vertebrata ini menjadi prasyarat amfibi, amniota, mamalia, hingga primata. Apakah terestrialisasi vertebrata bersifat kontingen atau akan berulang (konvergen) masih diperdebatkan.",
+    sources: ["Shubin, Daeschler & Jenkins (2006)", "Clack, Gaining Ground (2012)"],
+    branch: "kosmologis-utama",
+  },
+  {
+    id: "a-cambrian-explosion",
+    label: "Ledakan Kambrium",
+    category: "biologis",
+    timeLabel: "~538 juta tahun lalu",
+    timeValue: UNIVERSE_AGE_SECONDS - 538e6 * 365.25 * 24 * 3600,
+    description:
+      "Dalam rentang geologis yang relatif singkat, hampir semua filum hewan modern muncul, termasuk chordata awal (mis. Pikaia) yang menjadi leluhur vertebrata. Gould memakai peristiwa ini sebagai contoh utama kontingensi evolusioner; Conway Morris membantah dgn argumen konvergensi. Statusnya sbg 'titik cabang yang menentukan' karena itu diperdebatkan.",
+    sources: ["Gould, Wonderful Life (1989)", "Conway Morris, Life's Solution (2003)"],
+    branch: "kosmologis-utama",
+  },
+  {
+    id: "a-eukaryogenesis",
+    label: "Kemunculan Sel Eukariota",
+    category: "biologis",
+    timeLabel: "~2,0–1,5 miliar tahun lalu",
+    timeValue: UNIVERSE_AGE_SECONDS - 1.8e9 * 365.25 * 24 * 3600,
+    description:
+      "Penggabungan inang arkea (garis Asgard) dengan bakteri alfa-proteobakteri melahirkan mitokondria dan sel eukariota kompleks — prasyarat semua kehidupan multiseluler, termasuk hewan. Peristiwa historisnya (LECA sudah bermitokondria) relatif mapan, tetapi klaim mekanisme 'keharusan energetik' (daya per gen) diperdebatkan.",
+    sources: [
+      "Lane & Martin, Nature 467:929 (2010)",
+      "Eme et al., Nat. Rev. Microbiol. (2017)",
+      "Imachi et al., Nature (2020)",
+    ],
+    branch: "kosmologis-utama",
+  },
+  {
+    id: "a-goe-oxygenation",
+    label: "Great Oxidation Event & Fotosintesis Oksigenik",
+    category: "biologis",
+    timeLabel: "~2,4 miliar tahun lalu",
+    timeValue: UNIVERSE_AGE_SECONDS - 2.4e9 * 365.25 * 24 * 3600,
+    description:
+      "Sianobakteri mengembangkan fotosintesis oksigenik — satu-satunya sumber oksigen bebas skala planet — yang memicu Great Oxidation Event (~2,43–2,22 miliar tahun lalu). Oksigen atmosfer membuka jalan bagi lapisan ozon dan respirasi aerobik berdaya tinggi yang kelak dibutuhkan hewan besar. Bahwa fotosintesis oksigenik adalah prasyarat energetik itu mapan; timing kausal oksigen bagi kompleksitas diperdebatkan.",
+    sources: [
+      "Fischer, Hemp & Johnson, AREPS (2016)",
+      "Sánchez-Baracaldo & Cardona, New Phytologist (2020)",
+    ],
     branch: "kosmologis-utama",
   },
   {
@@ -803,23 +867,22 @@ const coreChainNodes: ChainNode[] = [
   },
 ];
 
-export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes];
+export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes, ...civilizationNodes];
 
 /**
  * Statistik node (untuk verifikasi kriteria selesai):
- * - Total: 45 node (3 node filosofis paralel + 1 muara + 1 node maklumat asabiqah)
- * - Branch A (kosmologis-utama): 25 node
+ * - Total diekspor: 72 node (coreChainNodes 49 + Branch E 18 + Branch F 5)
+ * - Branch A (kosmologis-utama): 30 node
  *     · 21 node ilmiah/kosmis (era Planck → Masa Kini)
+ *     · 5 node biologis: a-goe-oxygenation, a-eukaryogenesis,
+ *       a-cambrian-explosion, a-tetrapod-transition, a-kpg-extinction
  *     · 3 node terminal filosofis paralel: a-first-cause-al-kindi,
  *       a-first-cause-ibn-sina, a-first-cause-al-ghazali
  *     · 1 node muara konvergen: a-first-cause (Tauhid Wujud)
  * - Branch B (silsilah-manusia): 7 node (Anda → ... → Hominini Awal → Maklumat Asabiqah)
  * - Branch C (contoh-hujan): 6 node
  * - Branch D (contoh-biliar): 6 node
- *
- * Kriteria "minimal 25 node" terpenuhi.
- *
- * (coreChainNodes di atas = 45 node; chainNodes yang diekspor menambahkan
- * 8 node Branch E — determinisme-ketetapan — via spread dari determinism-nodes.ts,
- * sehingga totalnya 53 node.)
+ *   (coreChainNodes = A 30 + B 7 + C 6 + D 6 = 49 node)
+ * - Branch E (determinisme-ketetapan): 18 node (via spread dari determinism-nodes.ts)
+ * - Branch F (sejarah-peradaban): 5 node (via spread dari civilization-nodes.ts)
  */
