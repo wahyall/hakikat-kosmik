@@ -51,7 +51,7 @@ const OPTIONS: BranchOption[] = [
     value: "all",
     label: "Semua Jalur",
     short: "★",
-    description: "Gabungan A+B+C+D dengan titik pertemuan",
+    description: "Gabungan A+B+C+D+E dengan titik pertemuan",
   },
 ];
 
