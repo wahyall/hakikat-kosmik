@@ -37,6 +37,8 @@ import { useFlowStore } from "@/store/flow-store";
 import { cn } from "@/lib/utils";
 import { simulate } from "@/lib/flow/simulation";
 import { chainCorrelations } from "@/data/chain-correlations";
+import { classifyDeterminacy, shouldShowContingencyBadge } from "@/lib/flow/determinacy";
+import { nodeSensitivities } from "@/data/fine-tuning-impact";
 
 const nodeTypes = { custom: CustomNode };
 
@@ -167,6 +169,13 @@ function FlowInner() {
 
       const isTraversalActiveNode = traversalActive && traversalNodeId === n.id;
 
+      const determinacy = classifyDeterminacy(n.id, nodeSensitivities);
+      const showContingency = shouldShowContingencyBadge(
+        simEnabled,
+        sim.anyChange,
+        determinacy.label
+      );
+
       return {
         ...n,
         isDimmed: !matchesCategory || !matchesSearch,
@@ -174,6 +183,7 @@ function FlowInner() {
         isSelected: selectedNodeId === n.id,
         isTraversalActive: isTraversalActiveNode,
         simStatus: simEnabled && sim.anyChange ? sim.outcomes.get(n.id)?.status : undefined,
+        showContingency,
       };
     });
   }, [
@@ -194,7 +204,11 @@ function FlowInner() {
       id: n.id,
       type: "custom",
       position: { x: 0, y: 0 },
-      data: { node: n, simStatus: n.simStatus } as unknown as ChainNodeData,
+      data: {
+        node: n,
+        simStatus: n.simStatus,
+        showContingency: n.showContingency,
+      } as unknown as ChainNodeData,
     }));
   }, [decoratedNodes]);
 

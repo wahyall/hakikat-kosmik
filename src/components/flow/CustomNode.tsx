@@ -26,6 +26,7 @@ export interface ChainNodeData extends Record<string, unknown> {
   isSelected?: boolean;
   isTraversalActive?: boolean;
   simStatus?: "survives" | "altered" | "fails";
+  showContingency?: boolean;
 }
 
 function CustomNodeImpl({ data, id }: NodeProps) {
@@ -144,6 +145,14 @@ function CustomNodeImpl({ data, id }: NodeProps) {
           {simStatus === "altered" && (
             <span className="text-[10px] font-bold bg-amber-400 text-amber-950 rounded px-1 py-0.5">
               ≈
+            </span>
+          )}
+          {chainData.showContingency && (
+            <span
+              title="Bergantung pada ketetapan konstanta"
+              className="text-[10px] font-bold bg-violet-500 text-white rounded px-1 py-0.5"
+            >
+              ⚙
             </span>
           )}
         </div>
