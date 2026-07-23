@@ -650,7 +650,7 @@ function FlowInner() {
 
       {/* Panel Korelasi & Legend (Bottom Right) */}
       {showCorrelations && (
-        <Panel position="bottom-right" className="!m-2 max-w-[260px]">
+        <Panel position="bottom-left" className="!m-4 !ml-8 max-w-[260px]">
           <div className="rounded-lg border bg-background/95 backdrop-blur p-2.5 text-[9px] space-y-2 shadow-md">
             <div className="flex items-center justify-between gap-2 border-b pb-1">
               <p className="font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
