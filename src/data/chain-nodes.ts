@@ -30,6 +30,7 @@
  */
 
 import { determinismNodes } from "./determinism-nodes";
+import { civilizationNodes } from "./civilization-nodes";
 
 export type ChainCategory =
   | "personal"
@@ -44,7 +45,8 @@ export type ChainBranch =
   | "kosmologis-utama"
   | "contoh-hujan"
   | "contoh-biliar"
-  | "determinisme-ketetapan";
+  | "determinisme-ketetapan"
+  | "sejarah-peradaban";
 
 export interface QuranReference {
   /** Contoh: "Al-Baqarah:117" */
@@ -865,7 +867,7 @@ const coreChainNodes: ChainNode[] = [
   },
 ];
 
-export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes];
+export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes, ...civilizationNodes];
 
 /**
  * Statistik node (untuk verifikasi kriteria selesai):

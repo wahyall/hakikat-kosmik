@@ -17,6 +17,7 @@
 
 import type { Edge } from "@xyflow/react";
 import { determinismEdges } from "./determinism-nodes";
+import { civilizationEdges } from "./civilization-nodes";
 // Re-export agar konsisten dengan chain-nodes.ts
 export type { Edge };
 
@@ -24,7 +25,7 @@ export interface ChainEdge extends Edge {
   /** label jenis relasi kausal */
   causalLabel?: string;
   /** branch edge ini (untuk filter) */
-  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "determinisme-ketetapan" | "all";
+  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "determinisme-ketetapan" | "sejarah-peradaban" | "all";
 }
 
 const coreChainEdges: ChainEdge[] = [
@@ -101,7 +102,7 @@ const coreChainEdges: ChainEdge[] = [
   { id: "e-d-intention-to-physics", source: "d-intention", target: "d-physics", causalLabel: "tunduk pada", branch: "contoh-biliar" },
 ];
 
-export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges];
+export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges, ...civilizationEdges];
 
 /**
  * Statistik edge:
