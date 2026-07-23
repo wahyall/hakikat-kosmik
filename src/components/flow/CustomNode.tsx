@@ -102,6 +102,7 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       <Handle
         type="target"
         position={Position.Top}
+        id="target-top"
         className={cn(
           "!w-2 !h-2 !border",
           isTraversalNode ? "!bg-emerald-500 !border-emerald-700" : "!bg-foreground/50 !border-foreground/30"
@@ -111,10 +112,36 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
+        id="source-bottom"
         className={cn(
           "!w-2 !h-2 !border",
           isTraversalNode ? "!bg-emerald-500 !border-emerald-700" : "!bg-foreground/50 !border-foreground/30"
         )}
+      />
+      {/* Side Handles for Correlations (prevent overlapping nodes) */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="target-left"
+        className="!w-1.5 !h-3 !border !bg-violet-500/60 !border-violet-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="source-left"
+        className="!w-1.5 !h-3 !border !bg-violet-500/60 !border-violet-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        id="target-right"
+        className="!w-1.5 !h-3 !border !bg-sky-500/60 !border-sky-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="source-right"
+        className="!w-1.5 !h-3 !border !bg-sky-500/60 !border-sky-700 opacity-40 group-hover:opacity-100 transition-opacity"
       />
 
       {/* Header: label + badge */}

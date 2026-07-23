@@ -236,6 +236,8 @@ function FlowInner() {
         id: e.id,
         source: e.source,
         target: e.target,
+        sourceHandle: "source-bottom",
+        targetHandle: "target-top",
         label: e.causalLabel,
         type: "smoothstep",
         animated: isTraversalEdge,
@@ -267,22 +269,53 @@ function FlowInner() {
     const visibleIds = new Set(filteredNodes.map((n) => n.id));
     const hasSelection = selectedCorrelationId != null || selectedNodeId != null;
 
+    const nodeBranchMap = new Map(nodesData.map((n) => [n.id, n.branch]));
+
     return chainCorrelations
       .filter((c) => visibleIds.has(c.source) && visibleIds.has(c.target))
-      .map((c) => {
+      .map((c, idx) => {
         const isSelected = selectedCorrelationId === c.id;
         const isRelatedToSelectedNode =
           selectedNodeId != null && (c.source === selectedNodeId || c.target === selectedNodeId);
 
         const kindColor = CORRELATION_STYLE[c.kind] ?? "#8b5cf6";
 
+        const sourceBranch = nodeBranchMap.get(c.source) ?? "all";
+        const targetBranch = nodeBranchMap.get(c.target) ?? "all";
+
+        let sourceHandle = "source-right";
+        let targetHandle = "target-left";
+
+        if (sourceBranch === targetBranch) {
+          if (idx % 2 === 0) {
+            sourceHandle = "source-left";
+            targetHandle = "target-left";
+          } else {
+            sourceHandle = "source-right";
+            targetHandle = "target-right";
+          }
+        } else if (sourceBranch !== "kosmologis-utama" && targetBranch === "kosmologis-utama") {
+          sourceHandle = "source-left";
+          targetHandle = "target-right";
+        } else if (sourceBranch === "kosmologis-utama" && targetBranch !== "kosmologis-utama") {
+          sourceHandle = "source-right";
+          targetHandle = "target-left";
+        }
+
+        const baseEdgeProps = {
+          id: c.id,
+          source: c.source,
+          target: c.target,
+          sourceHandle,
+          targetHandle,
+          type: "smoothstep",
+          pathOptions: { borderRadius: 16 },
+        };
+
         if (isSelected) {
           return {
-            id: c.id,
-            source: c.source,
-            target: c.target,
+            ...baseEdgeProps,
             label: `${c.label} (Sorot aktif)`,
-            type: "smoothstep",
             animated: true,
             interactionWidth: 25,
             markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: kindColor },
@@ -305,11 +338,8 @@ function FlowInner() {
 
         if (isRelatedToSelectedNode) {
           return {
-            id: c.id,
-            source: c.source,
-            target: c.target,
+            ...baseEdgeProps,
             label: c.label,
-            type: "smoothstep",
             animated: true,
             interactionWidth: 20,
             markerEnd: { type: MarkerType.Arrow, width: 16, height: 16, color: kindColor },
@@ -332,11 +362,8 @@ function FlowInner() {
 
         if (hasSelection) {
           return {
-            id: c.id,
-            source: c.source,
-            target: c.target,
+            ...baseEdgeProps,
             label: c.label,
-            type: "smoothstep",
             animated: false,
             interactionWidth: 15,
             markerEnd: { type: MarkerType.Arrow, width: 10, height: 10, color: kindColor },
@@ -353,11 +380,8 @@ function FlowInner() {
         }
 
         return {
-          id: c.id,
-          source: c.source,
-          target: c.target,
+          ...baseEdgeProps,
           label: c.label,
-          type: "smoothstep",
           animated: false,
           interactionWidth: 20,
           markerEnd: { type: MarkerType.Arrow, width: 14, height: 14, color: kindColor },
@@ -378,8 +402,8 @@ function FlowInner() {
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
     return getLayoutedElements(rfNodes, rfEdges, {
       direction: "TB",
-      nodeSep: 80,
-      rankSep: 110,
+      nodeSep: 110,
+      rankSep: 135,
     });
   }, [rfNodes, rfEdges]);
 
