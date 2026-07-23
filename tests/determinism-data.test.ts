@@ -12,14 +12,24 @@ const EXPECTED_F_IDS = [
   "f-lauhul-mahfuz",
   "f-qadar-muallaq",
   "f-qadar-mubram",
+  "f-maratib-ilm",
+  "f-maratib-kitabah",
+  "f-maratib-masyiah",
+  "f-maratib-khalq",
+  "f-kasb",
+  "f-mahw-itsbat",
+  "f-barat-boethius",
+  "f-barat-molinisme",
+  "f-barat-kompatibilisme",
+  "f-sintesis",
 ];
 
 describe("Jalur E (determinisme-ketetapan) data", () => {
-  it("adds all 8 f- nodes on the determinisme-ketetapan branch", () => {
+  it("adds all 18 f- nodes on the determinisme-ketetapan branch", () => {
     const ids = new Set(chainNodes.map((n) => n.id));
     for (const id of EXPECTED_F_IDS) expect(ids.has(id)).toBe(true);
     const branchNodes = chainNodes.filter((n) => n.branch === "determinisme-ketetapan");
-    expect(branchNodes.length).toBe(8);
+    expect(branchNodes.length).toBe(18);
   });
 
   it("does not collide with existing d- (biliar) ids", () => {
@@ -36,7 +46,7 @@ describe("Jalur E (determinisme-ketetapan) data", () => {
   it("Jalur E edges reference only existing nodes and carry the branch", () => {
     const ids = new Set(chainNodes.map((n) => n.id));
     const eEdges = chainEdges.filter((e) => e.branch === "determinisme-ketetapan");
-    expect(eEdges.length).toBe(7);
+    expect(eEdges.length).toBe(19);
     for (const e of eEdges) {
       expect(ids.has(e.source)).toBe(true);
       expect(ids.has(e.target)).toBe(true);
