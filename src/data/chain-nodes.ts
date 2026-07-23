@@ -871,19 +871,18 @@ export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes, 
 
 /**
  * Statistik node (untuk verifikasi kriteria selesai):
- * - Total: 45 node (3 node filosofis paralel + 1 muara + 1 node maklumat asabiqah)
- * - Branch A (kosmologis-utama): 25 node
+ * - Total diekspor: 72 node (coreChainNodes 49 + Branch E 18 + Branch F 5)
+ * - Branch A (kosmologis-utama): 30 node
  *     · 21 node ilmiah/kosmis (era Planck → Masa Kini)
+ *     · 5 node biologis: a-goe-oxygenation, a-eukaryogenesis,
+ *       a-cambrian-explosion, a-tetrapod-transition, a-kpg-extinction
  *     · 3 node terminal filosofis paralel: a-first-cause-al-kindi,
  *       a-first-cause-ibn-sina, a-first-cause-al-ghazali
  *     · 1 node muara konvergen: a-first-cause (Tauhid Wujud)
  * - Branch B (silsilah-manusia): 7 node (Anda → ... → Hominini Awal → Maklumat Asabiqah)
  * - Branch C (contoh-hujan): 6 node
  * - Branch D (contoh-biliar): 6 node
- *
- * Kriteria "minimal 25 node" terpenuhi.
- *
- * (coreChainNodes di atas = 45 node; chainNodes yang diekspor menambahkan
- * 8 node Branch E — determinisme-ketetapan — via spread dari determinism-nodes.ts,
- * sehingga totalnya 53 node.)
+ *   (coreChainNodes = A 30 + B 7 + C 6 + D 6 = 49 node)
+ * - Branch E (determinisme-ketetapan): 18 node (via spread dari determinism-nodes.ts)
+ * - Branch F (sejarah-peradaban): 5 node (via spread dari civilization-nodes.ts)
  */

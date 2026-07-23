@@ -106,11 +106,14 @@ export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges, 
 
 /**
  * Statistik edge:
- * - Total: 43 edge
- * - Branch A: 26 edge (membentang dari masa kini ke 3 node terminal filosofis paralel
- *   + 1 node muara konvergen; dengan sub-node Hadron 2, Inflasi 3, GUT 2)
- * - Branch B: 7 edge (silsilah + node Maklumat Asabiqah + 1 cross-branch ke a-homo-sapiens)
- * - Branch C: 6 edge (hujan + 1 cross-branch ke a-nucleosynthesis)
- * - Branch D: 5 edge (self-contained)
- * - Branch E (determinisme-ketetapan): 7 edge (self-contained)
+ * - Total: 73 edge (branch tag: kosmologis-utama 31, silsilah-manusia 6,
+ *   contoh-hujan 5, contoh-biliar 5, determinisme-ketetapan 19,
+ *   sejarah-peradaban 4, "all" cross-branch 3)
+ * - Branch A (kosmologis-utama): 31 edge (termasuk 6 edge rantai biologis baru
+ *   K-Pg → tetrapoda → Kambrium → eukariogenesis → GOE → abiogenesis)
+ * - Branch B (silsilah-manusia): 6 edge + 1 cross-branch ("all") ke a-homo-sapiens
+ * - Branch C (contoh-hujan): 5 edge + 1 cross-branch ("all") ke a-nucleosynthesis
+ * - Branch D (contoh-biliar): 5 edge (self-contained)
+ * - Branch E (determinisme-ketetapan): 19 edge (via spread dari determinism-nodes.ts)
+ * - Branch F (sejarah-peradaban): 4 edge + 1 cross-branch ("all") ke a-homo-sapiens
  */
