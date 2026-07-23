@@ -28,6 +28,7 @@ import {
   Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { X, GitCompareArrows } from "lucide-react";
 
 import { chainEdges as edgesData } from "@/data/chain-edges";
 import { chainNodes as nodesData } from "@/data/chain-nodes";
@@ -104,6 +105,8 @@ function FlowInner() {
   const simValues = useFlowStore((s) => s.simValues);
   const panelMode = useFlowStore((s) => s.panelMode);
   const showCorrelations = useFlowStore((s) => s.showCorrelations);
+  const selectedCorrelationId = useFlowStore((s) => s.selectedCorrelationId);
+  const setSelectedCorrelation = useFlowStore((s) => s.setSelectedCorrelation);
 
   // Traversal state
   const traversalActive = useFlowStore((s) => s.traversalActive);
@@ -119,6 +122,16 @@ function FlowInner() {
 
   const { setCenter, getNode } = useReactFlow();
   const traversalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Correlation aktif
+  const activeCorrelation = useMemo(() => {
+    if (!selectedCorrelationId) return null;
+    return chainCorrelations.find((c) => c.id === selectedCorrelationId) ?? null;
+  }, [selectedCorrelationId]);
+
+  const nodeLabelMap = useMemo(() => {
+    return new Map(nodesData.map((n) => [n.id, n.label]));
+  }, []);
 
   // Filter node berdasarkan branch aktif
   const filteredNodes = useMemo(() => {
@@ -176,6 +189,12 @@ function FlowInner() {
         determinacy.label
       );
 
+      let correlationRole: "source" | "target" | null = null;
+      if (activeCorrelation) {
+        if (n.id === activeCorrelation.source) correlationRole = "source";
+        else if (n.id === activeCorrelation.target) correlationRole = "target";
+      }
+
       return {
         ...n,
         isDimmed: !matchesCategory || !matchesSearch,
@@ -184,6 +203,7 @@ function FlowInner() {
         isTraversalActive: isTraversalActiveNode,
         simStatus: simEnabled && sim.anyChange ? sim.outcomes.get(n.id)?.status : undefined,
         showContingency,
+        correlationRole,
       };
     });
   }, [
@@ -196,6 +216,7 @@ function FlowInner() {
     traversalNodeId,
     sim,
     simEnabled,
+    activeCorrelation,
   ]);
 
   // Convert ke React Flow node format
@@ -208,6 +229,7 @@ function FlowInner() {
         node: n,
         simStatus: n.simStatus,
         showContingency: n.showContingency,
+        correlationRole: n.correlationRole,
       } as unknown as ChainNodeData,
     }));
   }, [decoratedNodes]);
@@ -225,6 +247,8 @@ function FlowInner() {
         id: e.id,
         source: e.source,
         target: e.target,
+        sourceHandle: "source-bottom",
+        targetHandle: "target-top",
         label: e.causalLabel,
         type: "smoothstep",
         animated: isTraversalEdge,
@@ -254,34 +278,143 @@ function FlowInner() {
   const correlationEdges: Edge[] = useMemo(() => {
     if (!showCorrelations) return [];
     const visibleIds = new Set(filteredNodes.map((n) => n.id));
+    const hasSelection = selectedCorrelationId != null || selectedNodeId != null;
+
+    const nodeBranchMap = new Map(nodesData.map((n) => [n.id, n.branch]));
+
     return chainCorrelations
       .filter((c) => visibleIds.has(c.source) && visibleIds.has(c.target))
-      .map((c) => ({
-        id: c.id,
-        source: c.source,
-        target: c.target,
-        label: c.label,
-        type: "smoothstep",
-        animated: false,
-        markerEnd: { type: MarkerType.Arrow, width: 14, height: 14 },
-        style: {
-          stroke: CORRELATION_STYLE[c.kind] ?? "#8b5cf6",
-          strokeWidth: 1.5,
-          strokeDasharray: "5 4",
-          opacity: 0.85,
-        },
-        labelStyle: { fontSize: 9, fill: CORRELATION_STYLE[c.kind] ?? "#8b5cf6" },
-        labelBgStyle: { fill: "var(--background)", opacity: 0.85 },
-        zIndex: 0,
-      }));
-  }, [showCorrelations, filteredNodes]);
+      .map((c, idx) => {
+        const isSelected = selectedCorrelationId === c.id;
+        const isRelatedToSelectedNode =
+          selectedNodeId != null && (c.source === selectedNodeId || c.target === selectedNodeId);
+
+        const kindColor = CORRELATION_STYLE[c.kind] ?? "#8b5cf6";
+
+        const sourceBranch = nodeBranchMap.get(c.source) ?? "all";
+        const targetBranch = nodeBranchMap.get(c.target) ?? "all";
+
+        let sourceHandle = "source-right";
+        let targetHandle = "target-left";
+
+        if (sourceBranch === targetBranch) {
+          if (idx % 2 === 0) {
+            sourceHandle = "source-left";
+            targetHandle = "target-left";
+          } else {
+            sourceHandle = "source-right";
+            targetHandle = "target-right";
+          }
+        } else if (sourceBranch !== "kosmologis-utama" && targetBranch === "kosmologis-utama") {
+          sourceHandle = "source-left";
+          targetHandle = "target-right";
+        } else if (sourceBranch === "kosmologis-utama" && targetBranch !== "kosmologis-utama") {
+          sourceHandle = "source-right";
+          targetHandle = "target-left";
+        }
+
+        const baseEdgeProps = {
+          id: c.id,
+          source: c.source,
+          target: c.target,
+          sourceHandle,
+          targetHandle,
+          type: "smoothstep",
+          pathOptions: { borderRadius: 16 },
+        };
+
+        if (isSelected) {
+          return {
+            ...baseEdgeProps,
+            label: c.label,
+            animated: true,
+            interactionWidth: 25,
+            markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: kindColor },
+            style: {
+              stroke: kindColor,
+              strokeWidth: 3.5,
+              strokeDasharray: "8 4",
+              opacity: 1,
+            },
+            labelStyle: { fontSize: 11, fontWeight: 700, fill: kindColor },
+            labelBgStyle: {
+              fill: "var(--background)",
+              opacity: 1,
+              stroke: kindColor,
+              strokeWidth: 1.5,
+            },
+            zIndex: 100,
+          };
+        }
+
+        if (isRelatedToSelectedNode) {
+          return {
+            ...baseEdgeProps,
+            label: c.label,
+            animated: true,
+            interactionWidth: 20,
+            markerEnd: { type: MarkerType.Arrow, width: 16, height: 16, color: kindColor },
+            style: {
+              stroke: kindColor,
+              strokeWidth: 2.5,
+              strokeDasharray: "6 3",
+              opacity: 0.95,
+            },
+            labelStyle: { fontSize: 10, fontWeight: 600, fill: kindColor },
+            labelBgStyle: {
+              fill: "var(--background)",
+              opacity: 0.9,
+              stroke: kindColor,
+              strokeWidth: 1,
+            },
+            zIndex: 40,
+          };
+        }
+
+        if (hasSelection) {
+          return {
+            ...baseEdgeProps,
+            label: c.label,
+            animated: false,
+            interactionWidth: 15,
+            markerEnd: { type: MarkerType.Arrow, width: 10, height: 10, color: kindColor },
+            style: {
+              stroke: kindColor,
+              strokeWidth: 1,
+              strokeDasharray: "4 4",
+              opacity: 0.15,
+            },
+            labelStyle: { fontSize: 8, fill: kindColor, opacity: 0.2 },
+            labelBgStyle: { fill: "var(--background)", opacity: 0.2 },
+            zIndex: 0,
+          };
+        }
+
+        return {
+          ...baseEdgeProps,
+          label: c.label,
+          animated: false,
+          interactionWidth: 20,
+          markerEnd: { type: MarkerType.Arrow, width: 14, height: 14, color: kindColor },
+          style: {
+            stroke: kindColor,
+            strokeWidth: 1.5,
+            strokeDasharray: "5 4",
+            opacity: 0.85,
+          },
+          labelStyle: { fontSize: 9, fill: kindColor },
+          labelBgStyle: { fill: "var(--background)", opacity: 0.85 },
+          zIndex: 5,
+        };
+      });
+  }, [showCorrelations, filteredNodes, selectedCorrelationId, selectedNodeId]);
 
   // Layout dengan dagre — VERTIKAL (TB)
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
     return getLayoutedElements(rfNodes, rfEdges, {
       direction: "TB",
-      nodeSep: 80,
-      rankSep: 110,
+      nodeSep: 180,
+      rankSep: 140,
     });
   }, [rfNodes, rfEdges]);
 
@@ -297,21 +430,52 @@ function FlowInner() {
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
       setSelectedNode(node.id);
+      if (activeCorrelation && activeCorrelation.source !== node.id && activeCorrelation.target !== node.id) {
+        setSelectedCorrelation(null);
+      }
     },
-    [setSelectedNode],
+    [setSelectedNode, setSelectedCorrelation, activeCorrelation],
+  );
+
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      const isCorr = chainCorrelations.some((c) => c.id === edge.id);
+      if (isCorr) {
+        setSelectedCorrelation(edge.id);
+      }
+    },
+    [setSelectedCorrelation],
   );
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
-  }, [setSelectedNode]);
+    setSelectedCorrelation(null);
+  }, [setSelectedNode, setSelectedCorrelation]);
+
+  // Auto-center camera when a correlation edge is selected
+  useEffect(() => {
+    if (!selectedCorrelationId) return;
+    const corr = chainCorrelations.find((c) => c.id === selectedCorrelationId);
+    if (!corr) return;
+
+    const sourceNode = getNode(corr.source);
+    const targetNode = getNode(corr.target);
+
+    if (sourceNode && targetNode) {
+      const sx = sourceNode.position.x + (sourceNode.measured?.width ?? 200) / 2;
+      const sy = sourceNode.position.y + (sourceNode.measured?.height ?? 80) / 2;
+      const tx = targetNode.position.x + (targetNode.measured?.width ?? 200) / 2;
+      const ty = targetNode.position.y + (targetNode.measured?.height ?? 80) / 2;
+
+      const cx = (sx + tx) / 2;
+      const cy = (sy + ty) / 2;
+      setCenter(cx, cy, { zoom: 1.1, duration: 600 });
+    }
+  }, [selectedCorrelationId, getNode, setCenter]);
 
   // ====================================================================
   // ANIMASI TELUSUR — Effect untuk stepper ~1s per node
   // ====================================================================
-  // Saat traversalActive true: set traversalNodeId ke node[index],
-  // pan/zoom ke node itu, tunggu ~1s, lalu maju ke index+1.
-  // Berhenti otomatis di node terakhir (a-first-cause).
-
   useEffect(() => {
     if (!traversalActive) {
       if (traversalTimerRef.current) {
@@ -321,22 +485,18 @@ function FlowInner() {
       return;
     }
 
-    // Pastikan branch yang aktif menampilkan Branch A (atau "all"),
-    // karena traversal menggunakan node Branch A.
     if (activeBranch !== "kosmologis-utama" && activeBranch !== "all") {
       setBranch("kosmologis-utama");
     }
 
     const currentId = TRAVERSAL_SEQUENCE[traversalIndex];
     if (!currentId) {
-      // Out of bounds → stop
       stopTraversal();
       return;
     }
     setTraversalNodeId(currentId);
     setSelectedNode(currentId);
 
-    // Pan/zoom ke node aktif (centered)
     const node = getNode(currentId);
     if (node) {
       const w = node.measured?.width ?? 220;
@@ -346,14 +506,11 @@ function FlowInner() {
       setCenter(cx, cy, { zoom: 1.3, duration: 700 });
     }
 
-    // Jadwalkan langkah berikutnya
     if (traversalIndex < TRAVERSAL_SEQUENCE.length - 1) {
       traversalTimerRef.current = setTimeout(() => {
         setTraversalIndex(traversalIndex + 1);
       }, TRAVERSAL_STEP_MS);
     }
-    // Jika sudah di node terakhir, jangan jadwalkan — biarkan traversalActive
-    // tetap true sampai user klik Stop, supaya node terakhir tetap highlighted.
 
     return () => {
       if (traversalTimerRef.current) {
@@ -376,7 +533,6 @@ function FlowInner() {
 
   // ====================================================================
   // FOCUS NODE — ketika user klik tik timeline, pan/zoom ke node tsb.
-  // Consumed sekali lalu di-clear agar tidak re-trigger.
   // ====================================================================
   useEffect(() => {
     if (!focusNodeId) return;
@@ -388,7 +544,6 @@ function FlowInner() {
       const cy = node.position.y + h / 2;
       setCenter(cx, cy, { zoom: 1.25, duration: 600 });
     }
-    // Clear agar tidak re-trigger pada re-render berikutnya
     setFocusNode(null);
   }, [focusNodeId, getNode, setCenter, setFocusNode]);
 
@@ -399,6 +554,7 @@ function FlowInner() {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
+      onEdgeClick={onEdgeClick}
       onPaneClick={onPaneClick}
       nodeTypes={nodeTypes}
       fitView
@@ -406,7 +562,6 @@ function FlowInner() {
       minZoom={0.1}
       maxZoom={2.5}
       proOptions={{ hideAttribution: true }}
-      // Mobile touch support
       panOnDrag={[0, 1, 2]}
       panOnScroll={false}
       zoomOnPinch={true}
@@ -422,42 +577,141 @@ function FlowInner() {
       />
       <Controls
         className="!bg-background !border !border-border !shadow-sm !rounded-md"
-        // showInteractive={false}
       />
-      {showCorrelations && (
-        <Panel position="bottom-right" className="!m-2">
-          <div className="rounded-md border bg-background/90 backdrop-blur p-2 text-[9px] space-y-1 shadow-sm">
-            <p className="font-bold uppercase tracking-wide text-muted-foreground">Korelasi</p>
-            {Object.entries(CORRELATION_STYLE).map(([kind, color]) => (
-              <div key={kind} className="flex items-center gap-1">
-                <span className="inline-block w-4 border-t-2 border-dashed" style={{ borderColor: color }} />
-                {CORRELATION_LABELS[kind]}
+
+      {/* Floating detail card untuk Korelasi yang terpilih */}
+      {activeCorrelation && (
+        <Panel position="top-center" className="!m-3 z-30">
+          <div className="bg-background/95 backdrop-blur border-2 border-violet-500/50 rounded-xl p-3 shadow-xl max-w-[420px] w-full space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-start justify-between gap-2 border-b pb-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full text-white shadow-sm"
+                  style={{ backgroundColor: CORRELATION_STYLE[activeCorrelation.kind] ?? "#8b5cf6" }}
+                >
+                  {CORRELATION_LABELS[activeCorrelation.kind]}
+                </span>
+                <h4 className="text-xs font-bold">{activeCorrelation.label}</h4>
               </div>
-            ))}
+              <button
+                onClick={() => setSelectedCorrelation(null)}
+                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Tutup detail korelasi"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Connection flow representation */}
+            <div className="flex items-center justify-between gap-2 text-[11px] bg-muted/40 p-2 rounded-lg border">
+              <button
+                onClick={() => {
+                  const node = getNode(activeCorrelation.source);
+                  if (node) {
+                    const cx = node.position.x + (node.measured?.width ?? 200) / 2;
+                    const cy = node.position.y + (node.measured?.height ?? 80) / 2;
+                    setCenter(cx, cy, { zoom: 1.35, duration: 500 });
+                  }
+                }}
+                className="text-left font-semibold text-violet-700 dark:text-violet-300 hover:underline flex flex-col"
+              >
+                <span className="text-[9px] uppercase text-muted-foreground font-normal">Akibat (Source)</span>
+                {nodeLabelMap.get(activeCorrelation.source) ?? activeCorrelation.source}
+              </button>
+              <span className="text-muted-foreground font-mono text-xs">➔</span>
+              <button
+                onClick={() => {
+                  const node = getNode(activeCorrelation.target);
+                  if (node) {
+                    const cx = node.position.x + (node.measured?.width ?? 200) / 2;
+                    const cy = node.position.y + (node.measured?.height ?? 80) / 2;
+                    setCenter(cx, cy, { zoom: 1.35, duration: 500 });
+                  }
+                }}
+                className="text-right font-semibold text-sky-700 dark:text-sky-300 hover:underline flex flex-col"
+              >
+                <span className="text-[9px] uppercase text-muted-foreground font-normal">Sebab (Target)</span>
+                {nodeLabelMap.get(activeCorrelation.target) ?? activeCorrelation.target}
+              </button>
+            </div>
+
+            <p className="text-[11px] leading-relaxed text-foreground/90">
+              {activeCorrelation.reason}
+            </p>
+
+            {activeCorrelation.citation && (
+              <p className="text-[9px] text-muted-foreground italic border-t pt-1">
+                Sumber: {activeCorrelation.citation}
+              </p>
+            )}
           </div>
         </Panel>
       )}
-      {/* <MiniMap
-        pannable
-        zoomable
-        className="!bg-background !border !border-border !rounded-md"
-        nodeColor={(node) => {
-          const data = node.data as unknown as ChainNodeData;
-          if (!data?.node) return "#94a3b8";
-          const cat = data.node.category;
-          const colorMap: Record<string, string> = {
-            personal: "#f59e0b",
-            biologis: "#10b981",
-            geologis: "#c2410c",
-            astronomis: "#8b5cf6",
-            partikel: "#06b6d4",
-            filosofis: "#eab308",
-          };
-          return colorMap[cat] || "#94a3b8";
-        }}
-      /> */}
 
-      {/* Legend overlay — hidden on mobile to save canvas space */}
+      {/* Panel Korelasi & Legend (Bottom Right) */}
+      {showCorrelations && (
+        <Panel position="bottom-right" className="!m-2 max-w-[260px]">
+          <div className="rounded-lg border bg-background/95 backdrop-blur p-2.5 text-[9px] space-y-2 shadow-md">
+            <div className="flex items-center justify-between gap-2 border-b pb-1">
+              <p className="font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                <GitCompareArrows className="w-3 h-3 text-violet-500" />
+                Layer Korelasi
+              </p>
+              {selectedCorrelationId && (
+                <button
+                  onClick={() => setSelectedCorrelation(null)}
+                  className="text-[9px] text-violet-600 dark:text-violet-400 hover:underline font-semibold"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            {/* Legend warna */}
+            <div className="grid grid-cols-2 gap-1 text-[9px]">
+              {Object.entries(CORRELATION_STYLE).map(([kind, color]) => (
+                <div key={kind} className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 border-t-2 border-dashed" style={{ borderColor: color }} />
+                  <span>{CORRELATION_LABELS[kind]}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Daftar korelasi interaktif */}
+            <div className="space-y-1 pt-1 border-t max-h-36 overflow-y-auto pr-1">
+              <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                Klik garis/item untuk sorot ({chainCorrelations.length}):
+              </p>
+              {chainCorrelations.map((c) => {
+                const isSel = selectedCorrelationId === c.id;
+                const color = CORRELATION_STYLE[c.kind] ?? "#8b5cf6";
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCorrelation(isSel ? null : c.id)}
+                    className={cn(
+                      "w-full text-left p-1 rounded transition-colors flex items-center justify-between gap-1 text-[9px]",
+                      isSel
+                        ? "bg-violet-500/15 border border-violet-500/50 font-bold text-violet-950 dark:text-violet-100"
+                        : "hover:bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <span className="truncate">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full mr-1" style={{ backgroundColor: color }} />
+                      {c.label}
+                    </span>
+                    <span className="text-[8px] opacity-70 flex-shrink-0 font-mono">
+                      {nodeLabelMap.get(c.source)?.slice(0, 10)}...
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {/* Legend category overlay */}
       <Panel position="top-left" className="!m-2 hidden sm:block">
         <div className="bg-background/95 backdrop-blur border rounded-md p-2 shadow-sm max-w-[180px]">
           <h4 className="text-[10px] font-semibold uppercase tracking-wide mb-1.5">
@@ -485,25 +739,7 @@ function FlowInner() {
         </div>
       </Panel>
 
-      {/* Statistik overlay */}
-      {/* <Panel position="bottom-left" className="!m-2 !ml-14 !mb-4">
-        <div className="bg-background/95 backdrop-blur border rounded-md p-2 shadow-sm text-[10px]">
-          <div className="flex items-center gap-3">
-            <span>
-              <strong>{nodes.length}</strong> node
-            </span>
-            <span className="text-muted-foreground">·</span>
-            <span>
-              <strong>{edges.length}</strong> relasi
-            </span>
-          </div>
-          <p className="text-[9px] text-muted-foreground mt-0.5">
-            Panah mengalir dari <strong>akibat</strong> (atas) → <strong>sebab</strong> (bawah)
-          </p>
-        </div>
-      </Panel> */}
-
-      {/* Traversal progress overlay (hanya saat aktif) */}
+      {/* Traversal progress overlay */}
       {traversalActive && (
         <Panel position="top-right" className="!m-2">
           <div className="bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 rounded-md p-2 shadow-sm max-w-[220px]">

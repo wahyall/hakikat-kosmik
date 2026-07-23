@@ -34,7 +34,6 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
-  GitCompareArrows,
   BookOpen,
   ArrowRight,
 } from "lucide-react";
@@ -46,8 +45,6 @@ export function FineTuningMode() {
   const values = useFlowStore((s) => s.simValues);
   const setSimValue = useFlowStore((s) => s.setSimValue);
   const resetSim = useFlowStore((s) => s.resetSim);
-  const showCorrelations = useFlowStore((s) => s.showCorrelations);
-  const toggleCorrelations = useFlowStore((s) => s.toggleCorrelations);
   const setBranch = useFlowStore((s) => s.setBranch);
 
   const isOpen = panelMode === "finetuning";
@@ -135,17 +132,6 @@ export function FineTuningMode() {
             <h4 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
               Dampak pada Rantai Peristiwa
             </h4>
-            <button
-              onClick={toggleCorrelations}
-              className={cn(
-                "text-[10px] px-2 py-1 rounded border flex items-center gap-1",
-                showCorrelations ? "bg-foreground text-background" : "hover:bg-muted"
-              )}
-              aria-pressed={showCorrelations}
-            >
-              <GitCompareArrows className="w-3 h-3" />
-              Garis Korelasi
-            </button>
           </div>
           <div className="flex gap-2 text-[10px]">
             <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">

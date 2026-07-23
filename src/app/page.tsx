@@ -57,6 +57,7 @@ import {
   SlidersHorizontal,
   MoreHorizontal,
   X,
+  GitCompareArrows,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -430,6 +431,8 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
   const showPerspectivePanel = useFlowStore((s) => s.showPerspectivePanel);
   const toggleArgumentOverlay = useFlowStore((s) => s.toggleArgumentOverlay);
   const togglePerspectivePanel = useFlowStore((s) => s.togglePerspectivePanel);
+  const showCorrelations = useFlowStore((s) => s.showCorrelations);
+  const toggleCorrelations = useFlowStore((s) => s.toggleCorrelations);
 
   const panelMode = useFlowStore((s) => s.panelMode);
   const setPanelMode = useFlowStore((s) => s.setPanelMode);
@@ -578,6 +581,22 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
               />
             </div>
 
+            {/* Toggle: Garis Korelasi */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-background">
+              <GitCompareArrows
+                className={cn(
+                  "w-3.5 h-3.5",
+                  showCorrelations ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground",
+                )}
+              />
+              <span className="text-[11px] hidden md:inline">Garis Korelasi</span>
+              <Switch
+                checked={showCorrelations}
+                onCheckedChange={toggleCorrelations}
+                className="scale-75"
+              />
+            </div>
+
             {/* Feature buttons — icon-only on sm, text on lg */}
             {featureBtns.map((b, i) => (
               <button
@@ -604,7 +623,7 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
               title="Fitur lainnya"
               className={cn(
                 "flex items-center gap-1 px-2 py-1.5 rounded-md border text-[11px] transition-colors",
-                mobileMenuOpen || hasActiveFeature || showArgumentOverlay || showPerspectivePanel
+                mobileMenuOpen || hasActiveFeature || showArgumentOverlay || showPerspectivePanel || showCorrelations
                   ? "bg-foreground text-background border-foreground"
                   : "bg-background hover:bg-muted border-border text-foreground/80",
               )}
@@ -648,6 +667,21 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
                       Perspektif Lain
                     </span>
                     <Switch checked={showPerspectivePanel} onCheckedChange={() => { togglePerspectivePanel(); setMobileMenuOpen(false); }} className="scale-75 pointer-events-none" />
+                  </button>
+                  <button
+                    onClick={() => { toggleCorrelations(); setMobileMenuOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-md border text-xs transition-colors",
+                      showCorrelations
+                        ? "bg-violet-50 border-violet-300 text-violet-800"
+                        : "bg-background border-border text-foreground/80",
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <GitCompareArrows className="w-3.5 h-3.5" />
+                      Garis Korelasi
+                    </span>
+                    <Switch checked={showCorrelations} onCheckedChange={() => { toggleCorrelations(); setMobileMenuOpen(false); }} className="scale-75 pointer-events-none" />
                   </button>
                 </div>
 

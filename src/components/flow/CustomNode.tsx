@@ -27,6 +27,7 @@ export interface ChainNodeData extends Record<string, unknown> {
   isTraversalActive?: boolean;
   simStatus?: "survives" | "altered" | "fails";
   showContingency?: boolean;
+  correlationRole?: "source" | "target" | null;
 }
 
 function CustomNodeImpl({ data, id }: NodeProps) {
@@ -41,6 +42,8 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       : simStatus === "altered"
       ? "ring-2 ring-amber-500"
       : "";
+
+  const correlationRole = chainData.correlationRole;
 
   const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
   const timelineTimeValue = useFlowStore((s) => s.timelineTimeValue);
@@ -82,13 +85,15 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       className={cn(
         "group relative cursor-pointer rounded-lg border-2 px-3 py-2 transition-all",
         "shadow-sm hover:shadow-md hover:scale-[1.02]",
-        "w-[200px] min-h-[80px] flex flex-col justify-between",
+        "w-[260px] min-h-[80px] flex flex-col justify-between",
         color.bg,
         color.border,
         color.text,
         isDimmed && "opacity-30",
         (isSelected || timelineHighlight) && "ring-2 ring-offset-1 " + color.ring,
         (isSelected || timelineHighlight) && "shadow-md scale-[1.03]",
+        correlationRole === "source" && "ring-2 ring-violet-500 shadow-lg shadow-violet-500/20 scale-[1.04] z-10",
+        correlationRole === "target" && "ring-2 ring-sky-500 shadow-lg shadow-sky-500/20 scale-[1.04] z-10",
         isTraversalNode &&
           "ring-4 ring-emerald-500 shadow-lg shadow-emerald-500/30 scale-[1.06] z-10 animate-traverse-pulse",
         simClass
@@ -98,6 +103,7 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       <Handle
         type="target"
         position={Position.Top}
+        id="target-top"
         className={cn(
           "!w-2 !h-2 !border",
           isTraversalNode ? "!bg-emerald-500 !border-emerald-700" : "!bg-foreground/50 !border-foreground/30"
@@ -107,10 +113,36 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
+        id="source-bottom"
         className={cn(
           "!w-2 !h-2 !border",
           isTraversalNode ? "!bg-emerald-500 !border-emerald-700" : "!bg-foreground/50 !border-foreground/30"
         )}
+      />
+      {/* Side Handles for Correlations (prevent overlapping nodes) */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="target-left"
+        className="!w-1.5 !h-3 !border !bg-violet-500/60 !border-violet-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="source-left"
+        className="!w-1.5 !h-3 !border !bg-violet-500/60 !border-violet-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        id="target-right"
+        className="!w-1.5 !h-3 !border !bg-sky-500/60 !border-sky-700 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="source-right"
+        className="!w-1.5 !h-3 !border !bg-sky-500/60 !border-sky-700 opacity-40 group-hover:opacity-100 transition-opacity"
       />
 
       {/* Header: label + badge */}
@@ -122,6 +154,16 @@ function CustomNodeImpl({ data, id }: NodeProps) {
           </h3>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
+          {correlationRole === "source" && (
+            <span className="text-[9px] font-bold bg-violet-600 text-white rounded px-1 py-0.5 shadow-sm">
+              Akibat
+            </span>
+          )}
+          {correlationRole === "target" && (
+            <span className="text-[9px] font-bold bg-sky-600 text-white rounded px-1 py-0.5 shadow-sm">
+              Sebab
+            </span>
+          )}
           {isTraversalNode && (
             <span className="text-[10px] font-bold bg-emerald-500 text-white rounded px-1 py-0.5 animate-pulse">
               ●

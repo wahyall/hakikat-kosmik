@@ -57,11 +57,13 @@ interface FlowState {
   // Fine-tuning simulation
   simValues: Record<ConstantId, number>;
   showCorrelations: boolean;
+  selectedCorrelationId: string | null;
   // Actions
   setBranch: (b: ActiveBranch) => void;
   setSearchQuery: (q: string) => void;
   toggleCategory: (c: ChainCategory) => void;
   setSelectedNode: (id: string | null) => void;
+  setSelectedCorrelation: (id: string | null) => void;
   setTimelineTimeValue: (v: number | null) => void;
   toggleArgumentOverlay: () => void;
   togglePerspectivePanel: () => void;
@@ -103,9 +105,10 @@ export const useFlowStore = create<FlowState>((set) => ({
   focusNodeId: null,
   simValues: nominalValues(),
   showCorrelations: false,
+  selectedCorrelationId: null,
 
   setBranch: (b) =>
-    set({ activeBranch: b, selectedNodeId: null, timelineTimeValue: null }),
+    set({ activeBranch: b, selectedNodeId: null, selectedCorrelationId: null, timelineTimeValue: null }),
   setSearchQuery: (q) => set({ searchQuery: q }),
   toggleCategory: (c) =>
     set((state) => {
@@ -120,6 +123,7 @@ export const useFlowStore = create<FlowState>((set) => ({
       return { activeCategories: next };
     }),
   setSelectedNode: (id) => set({ selectedNodeId: id }),
+  setSelectedCorrelation: (id) => set({ selectedCorrelationId: id }),
   setTimelineTimeValue: (v) => set({ timelineTimeValue: v }),
   toggleArgumentOverlay: () =>
     set((s) => ({ showArgumentOverlay: !s.showArgumentOverlay })),
@@ -136,6 +140,7 @@ export const useFlowStore = create<FlowState>((set) => ({
       // Pindah ke Branch A otomatis agar traversal selalu mulai dari rangkaian utuh
       activeBranch: "kosmologis-utama",
       selectedNodeId: null,
+      selectedCorrelationId: null,
       timelineTimeValue: null,
     }),
   stopTraversal: () =>
@@ -151,5 +156,5 @@ export const useFlowStore = create<FlowState>((set) => ({
     set((s) => ({ simValues: { ...s.simValues, [id]: v } })),
   resetSim: () => set({ simValues: nominalValues() }),
   toggleCorrelations: () =>
-    set((s) => ({ showCorrelations: !s.showCorrelations })),
+    set((s) => ({ showCorrelations: !s.showCorrelations, selectedCorrelationId: null })),
 }));
