@@ -402,8 +402,8 @@ function FlowInner() {
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
     return getLayoutedElements(rfNodes, rfEdges, {
       direction: "TB",
-      nodeSep: 110,
-      rankSep: 135,
+      nodeSep: 180,
+      rankSep: 140,
     });
   }, [rfNodes, rfEdges]);
 

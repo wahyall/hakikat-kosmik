@@ -84,7 +84,7 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       className={cn(
         "group relative cursor-pointer rounded-lg border-2 px-3 py-2 transition-all",
         "shadow-sm hover:shadow-md hover:scale-[1.02]",
-        "w-[200px] min-h-[80px] flex flex-col justify-between",
+        "w-[260px] min-h-[80px] flex flex-col justify-between",
         color.bg,
         color.border,
         color.text,

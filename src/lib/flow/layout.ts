@@ -12,7 +12,7 @@
 import dagre from "dagre";
 import type { Node, Edge } from "@xyflow/react";
 
-const NODE_WIDTH = 220;
+const NODE_WIDTH = 260;
 const NODE_HEIGHT = 90;
 
 export interface LayoutOptions {
@@ -29,7 +29,7 @@ export function getLayoutedElements<TNode extends Node, TEdge extends Edge>(
   edges: TEdge[],
   options: LayoutOptions = {}
 ): { nodes: TNode[]; edges: TEdge[] } {
-  const { direction = "TB", nodeSep = 60, rankSep = 120 } = options;
+  const { direction = "TB", nodeSep = 180, rankSep = 135 } = options;
 
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
