@@ -40,8 +40,13 @@ import { simulate } from "@/lib/flow/simulation";
 import { chainCorrelations } from "@/data/chain-correlations";
 import { classifyDeterminacy, shouldShowContingencyBadge } from "@/lib/flow/determinacy";
 import { nodeSensitivities } from "@/data/fine-tuning-impact";
+import { simulateScenario } from "@/lib/flow/simulateScenario";
+import { whatIfScenarios } from "@/data/what-if-scenarios";
+import { virtualTimelines } from "@/data/virtual-timelines";
+import { buildVirtualElements } from "@/lib/flow/buildVirtualElements";
+import { VirtualBranchNode } from "./VirtualBranchNode";
 
-const nodeTypes = { custom: CustomNode };
+const nodeTypes = { custom: CustomNode, virtual: VirtualBranchNode };
 
 /**
  * Urutan telusur (Animasi Telusur) — dari "masa kini" mundur ke Sebab Pertama.
@@ -103,6 +108,7 @@ function FlowInner() {
   const setSelectedNode = useFlowStore((s) => s.setSelectedNode);
   const setBranch = useFlowStore((s) => s.setBranch);
   const simValues = useFlowStore((s) => s.simValues);
+  const activeScenarioId = useFlowStore((s) => s.activeScenarioId);
   const panelMode = useFlowStore((s) => s.panelMode);
   const showCorrelations = useFlowStore((s) => s.showCorrelations);
   const selectedCorrelationId = useFlowStore((s) => s.selectedCorrelationId);
@@ -162,7 +168,14 @@ function FlowInner() {
   }, [filteredNodes, activeBranch]);
 
   const simEnabled = panelMode === "finetuning";
-  const sim = useMemo(() => simulate(simValues), [simValues]);
+  const activeScenario = useMemo(
+    () => (activeScenarioId ? whatIfScenarios.find((s) => s.id === activeScenarioId) ?? null : null),
+    [activeScenarioId]
+  );
+  const sim = useMemo(
+    () => (activeScenario ? simulateScenario(activeScenario, simValues) : simulate(simValues)),
+    [activeScenario, simValues]
+  );
 
   // Hitung dim/active state untuk setiap node
   const decoratedNodes = useMemo(() => {
@@ -418,17 +431,29 @@ function FlowInner() {
     });
   }, [rfNodes, rfEdges]);
 
+  // Overlay cabang virtual (skenario what-if) — dihitung SETELAH layout dagre
+  // agar node/edge virtual tidak ikut mendistorsi susunan node nyata.
+  const virtualElements = useMemo(() => {
+    if (!simEnabled || !activeScenario) return { nodes: [] as Node[], edges: [] as Edge[] };
+    const vt = virtualTimelines.find((v) => v.scenarioId === activeScenario.id);
+    if (!vt) return { nodes: [] as Node[], edges: [] as Edge[] };
+    const anchor = layoutedNodes.find((n) => n.id === vt.branchFromNodeId);
+    if (!anchor) return { nodes: [] as Node[], edges: [] as Edge[] };
+    return buildVirtualElements(vt, anchor.position);
+  }, [simEnabled, activeScenario, layoutedNodes]);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
   // Update state ketika layout berubah
   useEffect(() => {
-    setNodes(layoutedNodes);
-    setEdges([...layoutedEdges, ...correlationEdges]);
-  }, [layoutedNodes, layoutedEdges, correlationEdges, setNodes, setEdges]);
+    setNodes([...layoutedNodes, ...virtualElements.nodes]);
+    setEdges([...layoutedEdges, ...correlationEdges, ...virtualElements.edges]);
+  }, [layoutedNodes, layoutedEdges, correlationEdges, virtualElements, setNodes, setEdges]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
+      if (node.type === "virtual") return; // konten sudah tampil di kartu; bukan node rantai nyata
       setSelectedNode(node.id);
       if (activeCorrelation && activeCorrelation.source !== node.id && activeCorrelation.target !== node.id) {
         setSelectedCorrelation(null);
