@@ -4,7 +4,12 @@
  * Hanya untuk skenario yang lolos kurasi manual (hasVirtualTimeline: true).
  * Virtual node bergaya visual berbeda (Plan 2B) & jelas ditandai hipotetis.
  * Framing filsafat: tiap cabang = satu 'mumkin' (kemungkinan) yang tak
- * diaktualkan (okasionalisme Al-Ghazali) — lihat docs/riset §4.
+ * diaktualkan — analogi longgar "dalam semangat" okasionalisme (sisi
+ * okasionalis dalam pemikiran Al-Ghazali), BUKAN doktrin literalnya:
+ * Al-Ghazali menolak *keniscayaan* hubungan sebab-akibat, bukan
+ * keberadaannya, dan (pasca-Griffel) membiarkan kausalitas sekunder sbg
+ * pandangan yang sama-sama mungkin. Ambil frasa UI dari docs/riset §4
+ * (daftar "JANGAN tulis"), bukan dari komentar ini.
  */
 
 export interface VirtualNode {
