@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * BranchSwitcher.tsx — Tab/switcher untuk berpindah antar 4 jalur.
- * Pilihan: A (Kosmologis), B (Silsilah), C (Hujan), D (Biliar), All (gabungan).
+ * BranchSwitcher.tsx — Tab/switcher untuk berpindah antar jalur.
+ * Pilihan: A (Kosmologis), B (Silsilah), C (Hujan), D (Biliar),
+ * E (Determinisme & Ketetapan), All (gabungan).
  */
 
 import { useFlowStore, type ActiveBranch } from "@/store/flow-store";
@@ -41,10 +42,16 @@ const OPTIONS: BranchOption[] = [
     description: "Bola → Tongkat → Tangan → Niat → Fisika",
   },
   {
+    value: "determinisme-ketetapan",
+    label: "E. Determinisme & Ketetapan",
+    short: "E",
+    description: "Kontingensi konstanta → Lauhul Mahfuz vs determinisme → Sebab Pertama",
+  },
+  {
     value: "all",
     label: "Semua Jalur",
     short: "★",
-    description: "Gabungan A+B+C+D dengan titik pertemuan",
+    description: "Gabungan A+B+C+D+E dengan titik pertemuan",
   },
 ];
 

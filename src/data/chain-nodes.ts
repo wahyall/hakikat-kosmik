@@ -29,6 +29,8 @@
  * - Nature, Science, PNAS
  */
 
+import { determinismNodes } from "./determinism-nodes";
+
 export type ChainCategory =
   | "personal"
   | "biologis"
@@ -41,7 +43,8 @@ export type ChainBranch =
   | "silsilah-manusia"
   | "kosmologis-utama"
   | "contoh-hujan"
-  | "contoh-biliar";
+  | "contoh-biliar"
+  | "determinisme-ketetapan";
 
 export interface QuranReference {
   /** Contoh: "Al-Baqarah:117" */
@@ -82,7 +85,7 @@ export interface ChainNode {
  */
 export const UNIVERSE_AGE_SECONDS = 4.355e17;
 
-export const chainNodes: ChainNode[] = [
+const coreChainNodes: ChainNode[] = [
   // ====================================================================
   // BRANCH A: JALUR KOSMOLOGIS UTAMA (dari masa kini mundur ke Big Bang
   //           lalu ke argumen filosofis Sebab Pertama)
@@ -800,6 +803,8 @@ export const chainNodes: ChainNode[] = [
   },
 ];
 
+export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes];
+
 /**
  * Statistik node (untuk verifikasi kriteria selesai):
  * - Total: 45 node (3 node filosofis paralel + 1 muara + 1 node maklumat asabiqah)
@@ -813,4 +818,8 @@ export const chainNodes: ChainNode[] = [
  * - Branch D (contoh-biliar): 6 node
  *
  * Kriteria "minimal 25 node" terpenuhi.
+ *
+ * (coreChainNodes di atas = 45 node; chainNodes yang diekspor menambahkan
+ * 8 node Branch E — determinisme-ketetapan — via spread dari determinism-nodes.ts,
+ * sehingga totalnya 53 node.)
  */
