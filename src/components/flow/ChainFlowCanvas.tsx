@@ -315,7 +315,7 @@ function FlowInner() {
         if (isSelected) {
           return {
             ...baseEdgeProps,
-            label: `${c.label} (Sorot aktif)`,
+            label: c.label,
             animated: true,
             interactionWidth: 25,
             markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: kindColor },
