@@ -162,4 +162,15 @@ export const chainCorrelations: ChainCorrelation[] = [
     citation: "Smithsonian Human Origins",
     propagatesFailure: false,
   },
+  {
+    id: "corr-f-lauhulmahfuz-sebabpertama",
+    source: "f-lauhul-mahfuz",
+    target: "a-first-cause",
+    kind: "thematic",
+    label: "menuntut Yang Mengetahui lebih dulu",
+    reason:
+      "Ilmu yang mendahului rantai sebab-akibat mengandaikan Wujud yang tidak bergantung pada rantai itu sendiri (Wajib al-Wujud) — menautkan bacaan lauhul mahfuz ke muara Sebab Pertama.",
+    citation: "Ibnu Sina, al-Isyarat; SEP: Foreknowledge and Free Will",
+    propagatesFailure: false,
+  },
 ];

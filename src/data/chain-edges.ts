@@ -16,6 +16,7 @@
  */
 
 import type { Edge } from "@xyflow/react";
+import { determinismEdges } from "./determinism-nodes";
 // Re-export agar konsisten dengan chain-nodes.ts
 export type { Edge };
 
@@ -23,10 +24,10 @@ export interface ChainEdge extends Edge {
   /** label jenis relasi kausal */
   causalLabel?: string;
   /** branch edge ini (untuk filter) */
-  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "all";
+  branch?: "silsilah-manusia" | "kosmologis-utama" | "contoh-hujan" | "contoh-biliar" | "determinisme-ketetapan" | "all";
 }
 
-export const chainEdges: ChainEdge[] = [
+const coreChainEdges: ChainEdge[] = [
   // ====================================================================
   // BRANCH A: JALUR KOSMOLOGIS UTAMA
   // Arah: dari "masa kini" mundur ke Big Bang, lalu ke Sebab Pertama
@@ -95,6 +96,8 @@ export const chainEdges: ChainEdge[] = [
   { id: "e-d-intention-to-physics", source: "d-intention", target: "d-physics", causalLabel: "tunduk pada", branch: "contoh-biliar" },
 ];
 
+export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges];
+
 /**
  * Statistik edge:
  * - Total: 43 edge
@@ -103,4 +106,5 @@ export const chainEdges: ChainEdge[] = [
  * - Branch B: 7 edge (silsilah + node Maklumat Asabiqah + 1 cross-branch ke a-homo-sapiens)
  * - Branch C: 6 edge (hujan + 1 cross-branch ke a-nucleosynthesis)
  * - Branch D: 5 edge (self-contained)
+ * - Branch E (determinisme-ketetapan): 7 edge (self-contained)
  */
