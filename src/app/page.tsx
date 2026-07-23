@@ -35,6 +35,7 @@ import { BookmarksPanel } from "@/components/flow/BookmarksPanel";
 import { ExportView } from "@/components/flow/ExportView";
 import { GlossaryPanel } from "@/components/flow/GlossaryPanel";
 import { FineTuningMode } from "@/components/flow/FineTuningMode";
+import { SimulationCascadePanel } from "@/components/flow/SimulationCascadePanel";
 import { useFlowStore } from "@/store/flow-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -736,6 +737,7 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
         <ExportView />
         <GlossaryPanel />
         <FineTuningMode />
+        <SimulationCascadePanel />
 
         {/* Canvas (flex-1) + DetailPanel */}
         <div className="flex-1 flex min-w-0 min-h-0">
