@@ -35,6 +35,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   GitCompareArrows,
+  BookOpen,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +48,7 @@ export function FineTuningMode() {
   const resetSim = useFlowStore((s) => s.resetSim);
   const showCorrelations = useFlowStore((s) => s.showCorrelations);
   const toggleCorrelations = useFlowStore((s) => s.toggleCorrelations);
+  const setBranch = useFlowStore((s) => s.setBranch);
 
   const isOpen = panelMode === "finetuning";
 
@@ -170,6 +173,52 @@ export function FineTuningMode() {
               ))}
             </ol>
           )}
+        </div>
+      )}
+
+      {/* Baca sebagai apa? — dua lensa filosofis atas output simulasi yang sama */}
+      {sim.anyChange && (
+        <div className="p-3 border-b space-y-2 bg-violet-50/40 dark:bg-violet-950/20">
+          <div className="flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+            <h4 className="text-[11px] font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200">
+              Baca sebagai apa?
+            </h4>
+          </div>
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
+            Fakta yang sama — konstanta yang bisa saja bernilai lain — dibaca dua cara:
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <div className="rounded-md border border-border bg-background/60 p-2 space-y-1">
+              <p className="font-bold">Determinisme (pra-tertulis)</p>
+              <p className="leading-relaxed">
+                Nilai konstanta <em>brute fact</em> — begitu saja. Rantai berjalan otomatis dari
+                kondisi awal, tanpa penulis. Presisinya: kebetulan atau multiverse.
+              </p>
+            </div>
+            <div className="rounded-md border border-violet-300 dark:border-violet-800 bg-violet-100/40 dark:bg-violet-900/20 p-2 space-y-1">
+              <p className="font-bold">Lauhul Mahfuz (telah tertulis)</p>
+              <p className="leading-relaxed">
+                Konstanta &amp; rantainya ditetapkan lebih dulu berdasarkan ilmu yang mendahului,
+                agar rantai ini bisa berjalan.
+              </p>
+            </div>
+          </div>
+          <p className="text-[10px] leading-relaxed rounded p-1.5 bg-amber-100/50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100">
+            <strong>Bukan paksaan:</strong> ilmu yang mendahului tidak sama dengan sebab yang
+            memaksa — seperti guru yang sudah tahu seorang murid akan lulus atau gagal, tanpa
+            pengetahuan itu menjadi penyebab hasil ujiannya.
+          </p>
+          <button
+            onClick={() => {
+              setBranch("determinisme-ketetapan");
+              setPanelMode("none");
+            }}
+            className="text-[10px] px-2 py-1 rounded border hover:bg-muted flex items-center gap-1 font-medium"
+          >
+            Lihat Jalur E
+            <ArrowRight className="w-3 h-3" />
+          </button>
         </div>
       )}
 
