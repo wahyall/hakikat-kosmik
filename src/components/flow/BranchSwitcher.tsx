@@ -3,7 +3,7 @@
 /**
  * BranchSwitcher.tsx — Tab/switcher untuk berpindah antar jalur.
  * Pilihan: A (Kosmologis), B (Silsilah), C (Hujan), D (Biliar),
- * E (Determinisme & Ketetapan), All (gabungan).
+ * E (Determinisme & Ketetapan), F (Sejarah Peradaban), All (gabungan).
  */
 
 import { useFlowStore, type ActiveBranch } from "@/store/flow-store";
@@ -48,10 +48,16 @@ const OPTIONS: BranchOption[] = [
     description: "Kontingensi konstanta → Lauhul Mahfuz vs determinisme → Sebab Pertama",
   },
   {
+    value: "sejarah-peradaban",
+    label: "F. Sejarah Peradaban",
+    short: "F",
+    description: "Homo sapiens → Neolitik → Tulisan → Salamis → Mongol 1242 → Maut Hitam",
+  },
+  {
     value: "all",
     label: "Semua Jalur",
     short: "★",
-    description: "Gabungan A+B+C+D+E dengan titik pertemuan",
+    description: "Gabungan A+B+C+D+E+F dengan titik pertemuan",
   },
 ];
 
