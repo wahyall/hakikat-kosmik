@@ -26,6 +26,7 @@ export interface ChainNodeData extends Record<string, unknown> {
   isSelected?: boolean;
   isTraversalActive?: boolean;
   simStatus?: "survives" | "altered" | "fails";
+  correlationRole?: "source" | "target" | null;
 }
 
 function CustomNodeImpl({ data, id }: NodeProps) {
@@ -40,6 +41,8 @@ function CustomNodeImpl({ data, id }: NodeProps) {
       : simStatus === "altered"
       ? "ring-2 ring-amber-500"
       : "";
+
+  const correlationRole = chainData.correlationRole;
 
   const selectedNodeId = useFlowStore((s) => s.selectedNodeId);
   const timelineTimeValue = useFlowStore((s) => s.timelineTimeValue);
@@ -88,6 +91,8 @@ function CustomNodeImpl({ data, id }: NodeProps) {
         isDimmed && "opacity-30",
         (isSelected || timelineHighlight) && "ring-2 ring-offset-1 " + color.ring,
         (isSelected || timelineHighlight) && "shadow-md scale-[1.03]",
+        correlationRole === "source" && "ring-2 ring-violet-500 shadow-lg shadow-violet-500/20 scale-[1.04] z-10",
+        correlationRole === "target" && "ring-2 ring-sky-500 shadow-lg shadow-sky-500/20 scale-[1.04] z-10",
         isTraversalNode &&
           "ring-4 ring-emerald-500 shadow-lg shadow-emerald-500/30 scale-[1.06] z-10 animate-traverse-pulse",
         simClass
@@ -121,6 +126,16 @@ function CustomNodeImpl({ data, id }: NodeProps) {
           </h3>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
+          {correlationRole === "source" && (
+            <span className="text-[9px] font-bold bg-violet-600 text-white rounded px-1 py-0.5 shadow-sm">
+              Akibat
+            </span>
+          )}
+          {correlationRole === "target" && (
+            <span className="text-[9px] font-bold bg-sky-600 text-white rounded px-1 py-0.5 shadow-sm">
+              Sebab
+            </span>
+          )}
           {isTraversalNode && (
             <span className="text-[10px] font-bold bg-emerald-500 text-white rounded px-1 py-0.5 animate-pulse">
               ●
