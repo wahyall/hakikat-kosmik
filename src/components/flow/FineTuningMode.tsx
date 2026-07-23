@@ -188,6 +188,9 @@ export function FineTuningMode() {
                 Konstanta &amp; rantainya ditetapkan lebih dulu berdasarkan ilmu yang mendahului,
                 agar rantai ini bisa berjalan.
               </p>
+              <p className="leading-relaxed font-medium text-violet-800 dark:text-violet-200">
+                Konstanta yang Anda geser = qadha&apos; mubram yang tertulis.
+              </p>
             </div>
           </div>
           <p className="text-[10px] leading-relaxed rounded p-1.5 bg-amber-100/50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100">

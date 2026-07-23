@@ -163,14 +163,58 @@ export const chainCorrelations: ChainCorrelation[] = [
     propagatesFailure: false,
   },
   {
-    id: "corr-f-lauhulmahfuz-sebabpertama",
-    source: "f-lauhul-mahfuz",
+    id: "corr-f-sintesis-sebabpertama",
+    source: "f-sintesis",
     target: "a-first-cause",
     kind: "thematic",
-    label: "menuntut Yang Mengetahui lebih dulu",
+    label: "titik pisahnya menyambung ke",
     reason:
-      "Ilmu yang mendahului rantai sebab-akibat mengandaikan Wujud yang tidak bergantung pada rantai itu sendiri (Wajib al-Wujud) — menautkan bacaan lauhul mahfuz ke muara Sebab Pertama.",
+      "Pertanyaan 'perlukah Penulis Yang Mengetahui' pada titik sintesis menyambung langsung ke argumen Sebab Pertama (Wajib al-Wujud).",
     citation: "Ibnu Sina, al-Isyarat; SEP: Foreknowledge and Free Will",
+    propagatesFailure: false,
+  },
+  {
+    id: "corr-f-mubram-bigbang",
+    source: "f-qadar-mubram",
+    target: "a-big-bang",
+    kind: "thematic",
+    label: "konstanta tersetel = qadha' mubram yang tertulis",
+    reason:
+      "Nilai konstanta fisika yang berlaku sejak awal alam adalah ketetapan mubram yang tertulis; simulasi Fine-Tuning membuktikan konstanta bisa bernilai lain, sehingga nilai yang teraktual adalah qadha' yang ditetapkan.",
+    citation: "Rees, Just Six Numbers (1999); QS Al-Qamar:49",
+    propagatesFailure: false,
+  },
+  {
+    id: "corr-f-boethius-ilm",
+    source: "f-barat-boethius",
+    target: "f-maratib-ilm",
+    kind: "analogy",
+    label: "paralel: ilmu di luar waktu",
+    reason:
+      "Solusi 'kekinian abadi' Boethius sejajar dengan al-'Ilm: pengetahuan ilahi tidak mendahului secara temporal sehingga tidak memaksa.",
+    citation: "SEP: Foreknowledge and Free Will",
+    propagatesFailure: false,
+  },
+  {
+    id: "corr-f-molinisme-kitabah",
+    source: "f-barat-molinisme",
+    target: "f-maratib-kitabah",
+    kind: "analogy",
+    label: "paralel: tahu pilihan bebas lalu menetapkan",
+    reason:
+      "Scientia media (tahu pilihan bebas lalu menetapkan dunia) sejajar dengan al-Kitâbah yang didasarkan pada al-'Ilm.",
+    citation: "SEP: Foreknowledge and Free Will (middle knowledge)",
+    propagatesFailure: false,
+  },
+  {
+    id: "corr-f-kompatibilisme-kasb",
+    source: "f-barat-kompatibilisme",
+    target: "f-kasb",
+    kind: "analogy",
+    label: "paralel: bebas + determinisme kompatibel",
+    reason:
+      "Kompatibilisme (bebas = bertindak sesuai kehendak sendiri tanpa paksaan) sejajar dengan kasb: ketetapan tidak meniadakan tanggung jawab.",
+    citation: "SEP: Compatibilism",
     propagatesFailure: false,
   },
 ];
