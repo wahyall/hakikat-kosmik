@@ -53,12 +53,36 @@ describe("Jalur E (determinisme-ketetapan) data", () => {
     }
   });
 
-  it("adds the lauhul-mahfuz → a-first-cause thematic correlation", () => {
-    const corr = chainCorrelations.find((c) => c.id === "corr-f-lauhulmahfuz-sebabpertama");
+  it("repoints the Sebab Pertama link to the synthesis node", () => {
+    const corr = chainCorrelations.find((c) => c.id === "corr-f-sintesis-sebabpertama");
     expect(corr).toBeDefined();
-    expect(corr!.source).toBe("f-lauhul-mahfuz");
+    expect(corr!.source).toBe("f-sintesis");
     expect(corr!.target).toBe("a-first-cause");
     expect(corr!.kind).toBe("thematic");
     expect(corr!.propagatesFailure).toBe(false);
+    // old id is gone
+    expect(chainCorrelations.find((c) => c.id === "corr-f-lauhulmahfuz-sebabpertama")).toBeUndefined();
+  });
+
+  it("adds the fine-tuning tie-in and cross-column parallel correlations", () => {
+    const byId = new Map(chainCorrelations.map((c) => [c.id, c]));
+    const mubram = byId.get("corr-f-mubram-bigbang");
+    expect(mubram).toBeDefined();
+    expect(mubram!.source).toBe("f-qadar-mubram");
+    expect(mubram!.target).toBe("a-big-bang");
+    expect(mubram!.kind).toBe("thematic");
+
+    for (const [id, src, tgt] of [
+      ["corr-f-boethius-ilm", "f-barat-boethius", "f-maratib-ilm"],
+      ["corr-f-molinisme-kitabah", "f-barat-molinisme", "f-maratib-kitabah"],
+      ["corr-f-kompatibilisme-kasb", "f-barat-kompatibilisme", "f-kasb"],
+    ] as const) {
+      const c = byId.get(id);
+      expect(c).toBeDefined();
+      expect(c!.source).toBe(src);
+      expect(c!.target).toBe(tgt);
+      expect(c!.kind).toBe("analogy");
+      expect(c!.propagatesFailure).toBe(false);
+    }
   });
 });

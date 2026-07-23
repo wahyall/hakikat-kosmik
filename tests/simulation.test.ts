@@ -70,9 +70,9 @@ describe("chainCorrelations data integrity", () => {
     expect(crossBranch.length).toBeGreaterThan(0);
   });
 
-  it("has between 10 and 15 correlations", () => {
+  it("has between 10 and 20 correlations", () => {
     expect(chainCorrelations.length).toBeGreaterThanOrEqual(10);
-    expect(chainCorrelations.length).toBeLessThanOrEqual(15);
+    expect(chainCorrelations.length).toBeLessThanOrEqual(20);
   });
 });
 
