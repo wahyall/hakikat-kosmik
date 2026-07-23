@@ -35,6 +35,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ScenarioPicker } from "./ScenarioPicker";
 
 export function FineTuningMode() {
   const panelMode = useFlowStore((s) => s.panelMode);
@@ -42,6 +43,7 @@ export function FineTuningMode() {
   const values = useFlowStore((s) => s.simValues);
   const setSimValue = useFlowStore((s) => s.setSimValue);
   const resetSim = useFlowStore((s) => s.resetSim);
+  const setActiveScenario = useFlowStore((s) => s.setActiveScenario);
 
   const isOpen = panelMode === "finetuning";
 
@@ -65,7 +67,10 @@ export function FineTuningMode() {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={resetSim}
+            onClick={() => {
+              resetSim();
+              setActiveScenario(null);
+            }}
             className="text-[10px] px-2 py-1 rounded border hover:bg-muted flex items-center gap-1"
             aria-label="Reset ke nilai aktual"
           >
@@ -73,7 +78,10 @@ export function FineTuningMode() {
             Reset
           </button>
           <button
-            onClick={() => setPanelMode("none")}
+            onClick={() => {
+              setActiveScenario(null);
+              setPanelMode("none");
+            }}
             className="p-1.5 rounded hover:bg-muted"
             aria-label="Tutup"
           >
@@ -128,6 +136,9 @@ export function FineTuningMode() {
               onChange={(v) => setSimValue(c.id as ConstantId, v)}
             />
           ))}
+
+          {/* Pemilih skenario preset */}
+          <ScenarioPicker />
 
           {/* Penrose entropy card */}
           <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 p-3 space-y-2">
