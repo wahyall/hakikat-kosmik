@@ -744,7 +744,7 @@ function ExplorerView({ onBack }: { onBack: () => void }) {
           <div className="flex-1 relative min-w-0 min-h-0">
             <ChainFlowCanvas />
           </div>
-          <div className="w-[280px] sm:w-[320px] flex-shrink-0 hidden md:block min-h-0 h-full overflow-hidden">
+          <div className="w-[320px] sm:w-[480px] flex-shrink-0 hidden md:block min-h-0 h-full overflow-hidden">
             <DetailPanel />
           </div>
         </div>
