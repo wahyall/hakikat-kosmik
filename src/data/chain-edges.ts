@@ -35,7 +35,8 @@ const coreChainEdges: ChainEdge[] = [
   // ====================================================================
 
   { id: "e-a-now-to-homo", source: "a-now", target: "a-homo-sapiens", causalLabel: "diwarnai oleh kemunculan", branch: "kosmologis-utama" },
-  { id: "e-a-homo-to-kpg", source: "a-homo-sapiens", target: "a-kpg-extinction", causalLabel: "radiasi mamalianya dimungkinkan oleh", branch: "kosmologis-utama" },
+  { id: "e-a-homo-to-hominids", source: "a-homo-sapiens", target: "b-early-hominids", causalLabel: "berevolusi secara fisik dari", branch: "kosmologis-utama" },
+  { id: "e-a-hominids-to-kpg", source: "b-early-hominids", target: "a-kpg-extinction", causalLabel: "radiasi primatanya dimungkinkan oleh", branch: "kosmologis-utama" },
   { id: "e-a-kpg-to-tetrapod", source: "a-kpg-extinction", target: "a-tetrapod-transition", causalLabel: "garis vertebrata daratnya berasal dari", branch: "kosmologis-utama" },
   { id: "e-a-tetrapod-to-cambrian", source: "a-tetrapod-transition", target: "a-cambrian-explosion", causalLabel: "leluhur chordatanya muncul saat", branch: "kosmologis-utama" },
   { id: "e-a-cambrian-to-eukaryo", source: "a-cambrian-explosion", target: "a-eukaryogenesis", causalLabel: "tubuh multiselulernya membutuhkan", branch: "kosmologis-utama" },
@@ -76,9 +77,8 @@ const coreChainEdges: ChainEdge[] = [
   { id: "e-b-parents-to-grandparents", source: "b-parents", target: "b-grandparents", causalLabel: "dilahirkan oleh", branch: "silsilah-manusia" },
   { id: "e-b-grandparents-to-great", source: "b-grandparents", target: "b-great-grandparents", causalLabel: "dilahirkan oleh", branch: "silsilah-manusia" },
   { id: "e-b-great-to-ancestors", source: "b-great-grandparents", target: "b-ancestors-1000", causalLabel: "keturunan jauh dari", branch: "silsilah-manusia" },
-  { id: "e-b-ancestors-to-hominids", source: "b-ancestors-1000", target: "b-early-hominids", causalLabel: "evolusioner dari", branch: "silsilah-manusia" },
-  { id: "e-b-hominids-to-maklumat", source: "b-early-hominids", target: "b-maklumat-asabiqah", causalLabel: "evolusi kognitifnya memerlukan", branch: "silsilah-manusia" },
-  { id: "e-b-maklumat-to-homo-sapiens", source: "b-maklumat-asabiqah", target: "a-homo-sapiens", causalLabel: "dipenuhi dalam penciptaan", branch: "all" },
+  { id: "e-b-ancestors-to-maklumat", source: "b-ancestors-1000", target: "b-maklumat-asabiqah", causalLabel: "mewarisi bahasa abstrak dari", branch: "silsilah-manusia" },
+  { id: "e-b-maklumat-to-homo-sapiens", source: "b-maklumat-asabiqah", target: "a-homo-sapiens", causalLabel: "dianugerahkan kepada keturunan", branch: "all" },
 
   // ====================================================================
   // BRANCH C: CONTOH HUJAN (menyambung ke a-nucleosynthesis di Branch A)
@@ -106,12 +106,12 @@ export const chainEdges: ChainEdge[] = [...coreChainEdges, ...determinismEdges, 
 
 /**
  * Statistik edge:
- * - Total: 73 edge (branch tag: kosmologis-utama 31, silsilah-manusia 6,
+ * - Total: 73 edge (branch tag: kosmologis-utama 32, silsilah-manusia 5,
  *   contoh-hujan 5, contoh-biliar 5, determinisme-ketetapan 19,
  *   sejarah-peradaban 4, "all" cross-branch 3)
- * - Branch A (kosmologis-utama): 31 edge (termasuk 6 edge rantai biologis baru
- *   K-Pg → tetrapoda → Kambrium → eukariogenesis → GOE → abiogenesis)
- * - Branch B (silsilah-manusia): 6 edge + 1 cross-branch ("all") ke a-homo-sapiens
+ * - Branch A (kosmologis-utama): 32 edge (termasuk 7 edge rantai biologis baru
+ *   hominids → K-Pg → tetrapoda → Kambrium → eukariogenesis → GOE → abiogenesis)
+ * - Branch B (silsilah-manusia): 5 edge + 1 cross-branch ("all") ke a-homo-sapiens
  * - Branch C (contoh-hujan): 5 edge + 1 cross-branch ("all") ke a-nucleosynthesis
  * - Branch D (contoh-biliar): 5 edge (self-contained)
  * - Branch E (determinisme-ketetapan): 19 edge (via spread dari determinism-nodes.ts)

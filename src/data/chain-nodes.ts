@@ -672,15 +672,15 @@ const coreChainNodes: ChainNode[] = [
     description:
       "Garis keturunan manusia berpisah dari garis keturunan simpanse sekitar 6–7 juta tahun lalu. Sahelanthropus, Orrorin, dan Ardipithecus adalah beberapa anggota awal keluarga hominini. Mereka berjalan dengan dua kaki secara sporadis dan otaknya masih berukuran mirip simpanse. Evolusi bipedalisme menjadi langkah kunci yang membebaskan tangan untuk penggunaan alat — pra-syarat untuk teknologi yang akhirnya membawa kita ke peradaban modern.",
     sources: ["Smithsonian Human Origins"],
-    branch: "silsilah-manusia",
+    branch: "kosmologis-utama",
   },
   {
     id: "b-maklumat-asabiqah",
     label: "Maklumat Asabiqah — Syarat Berpikir (An-Nabhani & Nabi Adam)",
     category: "filosofis",
     philosopher: "Taqiyuddin an-Nabhani",
-    timeLabel: "Prasejarah kognitif manusia — diajarkan Allah kepada Adam",
-    timeValue: UNIVERSE_AGE_SECONDS - 300_000 * 365.25 * 24 * 3600,
+    timeLabel: "~70.000 tahun lalu (Revolusi Kognitif) — diajarkan kepada Adam",
+    timeValue: UNIVERSE_AGE_SECONDS - 70_000 * 365.25 * 24 * 3600,
     description:
       "Syekh Taqiyuddin an-Nabhani (w. 1977) dalam karya-karyanya seperti Nizam al-Islam dan At-Tashkil al-Aqli (Pembentukan Akal) merumuskan bahwa berpikir (at-tafkir) memiliki empat syarat yang harus hadir bersamaan: (1) al-dimagh an-nadij — otak manusia yang matang sebagai organ pemroses; (2) al-hawass — panca indera (penglihatan, pendengaran, dll); (3) al-waqi' al-mahsus — realitas yang terindra (obyek yang diinderai); (4) al-ma'lumat as-sabiqa — informasi prior / maklumat asabiqah. Kritik an-Nabhani: tanpa syarat keempat, manusia hanya bisa MENGINDRAI (ihsas) seperti hewan — bukan berpikir. Sensasi tanpa maklumat asabiqah hanya menghasilkan reaksi otomatis terhadap stimuli, bukan penilaian atau pemahaman. Justru maklumat asabiqah-lah yang menghubungkan sensasi dengan konsep, sehingga manusia dapat MENAMAI, MENDEFINISIKAN, dan MENALAR. Inilah titik yang selaras dengan kisah penciptaan Nabi Adam dalam QS Al-Baqarah:31-33: 'Wa 'allama Adama al-asma'a kullaha' — 'Dan Allah mengajarkan kepada Adam nama-nama semuanya.' Mufassir seperti Ibnu Katsir, Al-Qurtubi, dan Hamka (Tafsir Al-Azhar) menjelaskan bahwa 'nama-nama' (al-asma') yang diajarkan kepada Adam adalah pengetahuan tentang hakikat/esaensi segala sesuatu — yang diberikan SEBELUM Adam menghadapi realitas. Ketika para malaikat diperintahkan menyebutkan nama-nama, mereka menjawab: 'Subhanaka la 'ilma lana illa ma 'allamtana' — 'Maha Suci Engkau, tidak ada knowledge bagi kami kecuali yang Engkau ajarkan kepada kami.' Mereka tidak memiliki maklumat asabiqah tentang hal-hal partikular, sehingga tidak bisa menamai. Adam bisa, karena ia telah diberi maklumat asabiqah. Implikasi filosofis yang dalam: kemampuan manusia untuk MENALAR sebab-akibat (termasuk menelusuri rantai kausal hingga Sebab Pertama) sendiri merupakan KARUNIA EPISTEMOLOGIS — bukan konstruksi murni dari pengindraan. Maka argumen kosmologis Islam tidak hanya menunjuk kepada Pencipta alam; ia juga menunjuk kepada Pemberi Akal. Tanpa maklumat asabiqah yang Allah berikan, kita akan berada di posisi malaikat: tidak bisa menamai, tidak bisa menalar, tidak bisa bertanya 'dari mana semua ini?'",
     objection:
@@ -879,7 +879,7 @@ export const chainNodes: ChainNode[] = [...coreChainNodes, ...determinismNodes, 
  *     · 3 node terminal filosofis paralel: a-first-cause-al-kindi,
  *       a-first-cause-ibn-sina, a-first-cause-al-ghazali
  *     · 1 node muara konvergen: a-first-cause (Tauhid Wujud)
- * - Branch B (silsilah-manusia): 7 node (Anda → ... → Hominini Awal → Maklumat Asabiqah)
+ * - Branch B (silsilah-manusia): 6 node (Anda → ... → Leluhur ~1000 generasi lalu → Maklumat Asabiqah)
  * - Branch C (contoh-hujan): 6 node
  * - Branch D (contoh-biliar): 6 node
  *   (coreChainNodes = A 30 + B 7 + C 6 + D 6 = 49 node)
