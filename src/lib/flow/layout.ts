@@ -19,6 +19,7 @@ export interface LayoutOptions {
   direction?: "LR" | "TB";
   nodeSep?: number;
   rankSep?: number;
+  activeBranch?: string;
 }
 
 export const DETERMINISM_POSITIONS: Record<string, { x: number; y: number }> = {
@@ -65,7 +66,7 @@ export function getLayoutedElements<TNode extends Node, TEdge extends Edge>(
   edges: TEdge[],
   options: LayoutOptions = {}
 ): { nodes: TNode[]; edges: TEdge[] } {
-  const { direction = "TB", nodeSep = 180, rankSep = 135 } = options;
+  const { direction = "TB", nodeSep = 180, rankSep = 135, activeBranch } = options;
 
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
@@ -90,11 +91,24 @@ export function getLayoutedElements<TNode extends Node, TEdge extends Edge>(
 
   dagre.layout(g);
 
+  // Hitung X offset untuk determinisme jika aktif di mode "all" (agar tidak menabrak cabang lain)
+  let determinismOffsetX = 0;
+  if (activeBranch !== "determinisme-ketetapan") {
+    const anchorPos = g.node("f-pengalaman-memilih");
+    if (anchorPos) {
+      const baseAnchorX = (DETERMINISM_POSITIONS["f-pengalaman-memilih"]?.x ?? 100) + NODE_WIDTH / 2;
+      determinismOffsetX = anchorPos.x - baseAnchorX;
+    }
+  }
+
   const layoutedNodes = nodes.map((node) => {
     if (DETERMINISM_POSITIONS[node.id]) {
       return {
         ...node,
-        position: DETERMINISM_POSITIONS[node.id],
+        position: {
+          x: DETERMINISM_POSITIONS[node.id].x + determinismOffsetX,
+          y: DETERMINISM_POSITIONS[node.id].y,
+        },
       };
     }
     const pos = g.node(node.id);

@@ -428,8 +428,9 @@ function FlowInner() {
       direction: "TB",
       nodeSep: 180,
       rankSep: 140,
+      activeBranch,
     });
-  }, [rfNodes, rfEdges]);
+  }, [rfNodes, rfEdges, activeBranch]);
 
   // Overlay cabang virtual (skenario what-if) — dihitung SETELAH layout dagre
   // agar node/edge virtual tidak ikut mendistorsi susunan node nyata.
