@@ -24,6 +24,8 @@ import {
   type FineTuningConstant,
 } from "@/data/fine-tuning-constants";
 import { simulate } from "@/lib/flow/simulation";
+import { simulateScenario } from "@/lib/flow/simulateScenario";
+import { whatIfScenarios } from "@/data/what-if-scenarios";
 import type { ConstantId } from "@/data/fine-tuning-impact";
 import {
   X,
@@ -44,10 +46,18 @@ export function FineTuningMode() {
   const setSimValue = useFlowStore((s) => s.setSimValue);
   const resetSim = useFlowStore((s) => s.resetSim);
   const setActiveScenario = useFlowStore((s) => s.setActiveScenario);
+  const activeScenarioId = useFlowStore((s) => s.activeScenarioId);
 
   const isOpen = panelMode === "finetuning";
 
-  const sim = useMemo(() => simulate(values), [values]);
+  const activeScenario = useMemo(
+    () => (activeScenarioId ? whatIfScenarios.find((s) => s.id === activeScenarioId) ?? null : null),
+    [activeScenarioId]
+  );
+  const sim = useMemo(
+    () => (activeScenario ? simulateScenario(activeScenario, values) : simulate(values)),
+    [activeScenario, values]
+  );
   const overallStatus = sim.counts.fails === 0;
 
   if (!isOpen) return null;
@@ -118,8 +128,10 @@ export function FineTuningMode() {
               <strong className="text-rose-900 dark:text-rose-100">
                 Status: ALAM SEMESTA STERIL.
               </strong>{" "}
-              Salah satu atau lebih konstanta di luar rentang habitable. Kehidupan seperti yang kita
-              kenal tidak akan muncul.
+              {activeScenario
+                ? "Skenario kejadian yang dipilih memutus rantai sebab-akibat: sebuah kemungkinan yang tak terwujud."
+                : "Salah satu atau lebih konstanta di luar rentang habitable."}{" "}
+              Kehidupan seperti yang kita kenal tidak akan muncul.
             </p>
           )}
         </div>
