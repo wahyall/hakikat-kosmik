@@ -24,6 +24,8 @@ import {
   type FineTuningConstant,
 } from "@/data/fine-tuning-constants";
 import { simulate } from "@/lib/flow/simulation";
+import { simulateScenario } from "@/lib/flow/simulateScenario";
+import { whatIfScenarios } from "@/data/what-if-scenarios";
 import type { ConstantId } from "@/data/fine-tuning-impact";
 import {
   X,
@@ -35,6 +37,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ScenarioPicker } from "./ScenarioPicker";
 
 export function FineTuningMode() {
   const panelMode = useFlowStore((s) => s.panelMode);
@@ -42,10 +45,19 @@ export function FineTuningMode() {
   const values = useFlowStore((s) => s.simValues);
   const setSimValue = useFlowStore((s) => s.setSimValue);
   const resetSim = useFlowStore((s) => s.resetSim);
+  const setActiveScenario = useFlowStore((s) => s.setActiveScenario);
+  const activeScenarioId = useFlowStore((s) => s.activeScenarioId);
 
   const isOpen = panelMode === "finetuning";
 
-  const sim = useMemo(() => simulate(values), [values]);
+  const activeScenario = useMemo(
+    () => (activeScenarioId ? whatIfScenarios.find((s) => s.id === activeScenarioId) ?? null : null),
+    [activeScenarioId]
+  );
+  const sim = useMemo(
+    () => (activeScenario ? simulateScenario(activeScenario, values) : simulate(values)),
+    [activeScenario, values]
+  );
   const overallStatus = sim.counts.fails === 0;
 
   if (!isOpen) return null;
@@ -65,7 +77,10 @@ export function FineTuningMode() {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={resetSim}
+            onClick={() => {
+              resetSim();
+              setActiveScenario(null);
+            }}
             className="text-[10px] px-2 py-1 rounded border hover:bg-muted flex items-center gap-1"
             aria-label="Reset ke nilai aktual"
           >
@@ -73,7 +88,10 @@ export function FineTuningMode() {
             Reset
           </button>
           <button
-            onClick={() => setPanelMode("none")}
+            onClick={() => {
+              setActiveScenario(null);
+              setPanelMode("none");
+            }}
             className="p-1.5 rounded hover:bg-muted"
             aria-label="Tutup"
           >
@@ -110,8 +128,10 @@ export function FineTuningMode() {
               <strong className="text-rose-900 dark:text-rose-100">
                 Status: ALAM SEMESTA STERIL.
               </strong>{" "}
-              Salah satu atau lebih konstanta di luar rentang habitable. Kehidupan seperti yang kita
-              kenal tidak akan muncul.
+              {activeScenario
+                ? "Skenario kejadian yang dipilih memutus rantai sebab-akibat: sebuah kemungkinan yang tak terwujud."
+                : "Salah satu atau lebih konstanta di luar rentang habitable."}{" "}
+              Kehidupan seperti yang kita kenal tidak akan muncul.
             </p>
           )}
         </div>
@@ -128,6 +148,9 @@ export function FineTuningMode() {
               onChange={(v) => setSimValue(c.id as ConstantId, v)}
             />
           ))}
+
+          {/* Pemilih skenario preset */}
+          <ScenarioPicker />
 
           {/* Penrose entropy card */}
           <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 p-3 space-y-2">
