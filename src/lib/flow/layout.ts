@@ -21,6 +21,42 @@ export interface LayoutOptions {
   rankSep?: number;
 }
 
+export const DETERMINISM_POSITIONS: Record<string, { x: number; y: number }> = {
+  // --- Header / Main Trunk (Center Column X = 100) ---
+  "f-pengalaman-memilih":        { x: 100,  y: 0 },
+  "f-pertanyaan-ilusi":          { x: 100,  y: 150 },
+  "f-konstanta-kontingen":      { x: 100,  y: 300 },
+  "f-presisi-butuh-penjelasan": { x: 100,  y: 450 },
+
+  // --- Row 4: Split into 3 main branches (y = 600) ---
+  "f-determinisme-pra-tertulis": { x: -480, y: 600 },
+  "f-lauhul-mahfuz":             { x: 100,  y: 600 },
+  "f-barat-boethius":            { x: 850,  y: 600 },
+
+  // --- Row 5 (y = 750) ---
+  "f-maratib-ilm":               { x: -170, y: 750 },
+  "f-mahw-itsbat":               { x: 400,  y: 750 },
+  "f-barat-molinisme":           { x: 850,  y: 750 },
+
+  // --- Row 6 (y = 900) ---
+  "f-maratib-kitabah":           { x: -170, y: 900 },
+  "f-qadar-muallaq":             { x: 270,  y: 900 },
+  "f-qadar-mubram":              { x: 560,  y: 900 },
+  "f-barat-kompatibilisme":      { x: 850,  y: 900 },
+
+  // --- Row 7 (y = 1050) ---
+  "f-maratib-masyiah":          { x: -170, y: 1050 },
+
+  // --- Row 8 (y = 1200) ---
+  "f-maratib-khalq":            { x: -170, y: 1200 },
+
+  // --- Row 9 (y = 1350) ---
+  "f-kasb":                     { x: -170, y: 1350 },
+
+  // --- Row 10 (y = 1520) — Convergence Footer ---
+  "f-sintesis":                 { x: 100,  y: 1520 },
+};
+
 /**
  * Hitung posisi node dengan dagre, return node baru dengan posisi yang sudah dihitung.
  */
@@ -55,6 +91,12 @@ export function getLayoutedElements<TNode extends Node, TEdge extends Edge>(
   dagre.layout(g);
 
   const layoutedNodes = nodes.map((node) => {
+    if (DETERMINISM_POSITIONS[node.id]) {
+      return {
+        ...node,
+        position: DETERMINISM_POSITIONS[node.id],
+      };
+    }
     const pos = g.node(node.id);
     return {
       ...node,

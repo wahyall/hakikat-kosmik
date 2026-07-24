@@ -393,12 +393,11 @@ export const determinismEdges: ChainEdge[] = [
     causalLabel: "bacaan 2",
     branch: "determinisme-ketetapan",
   },
-  // --- Kolom pembanding Barat berakar dari Pertanyaan Ilusi ---
   {
-    id: "e-f-ilusi-to-boethius",
-    source: "f-pertanyaan-ilusi",
+    id: "e-f-presisi-to-boethius",
+    source: "f-presisi-butuh-penjelasan",
     target: "f-barat-boethius",
-    causalLabel: "dijawab Barat via",
+    causalLabel: "pembanding Barat",
     branch: "determinisme-ketetapan",
   },
   // --- Kolom mekanisme Islam (marâtib) ---
@@ -479,14 +478,21 @@ export const determinismEdges: ChainEdge[] = [
     id: "e-f-determinisme-to-sintesis",
     source: "f-determinisme-pra-tertulis",
     target: "f-sintesis",
-    causalLabel: "sepakat pada takdir pasti",
+    causalLabel: "bertemu di",
     branch: "determinisme-ketetapan",
   },
   {
-    id: "e-f-lauhulmahfuz-to-sintesis",
-    source: "f-lauhul-mahfuz",
+    id: "e-f-kasb-to-sintesis",
+    source: "f-kasb",
     target: "f-sintesis",
-    causalLabel: "sepakat pada takdir pasti",
+    causalLabel: "bertemu di",
+    branch: "determinisme-ketetapan",
+  },
+  {
+    id: "e-f-kompatibilisme-to-sintesis",
+    source: "f-barat-kompatibilisme",
+    target: "f-sintesis",
+    causalLabel: "bertemu di",
     branch: "determinisme-ketetapan",
   },
 ];
